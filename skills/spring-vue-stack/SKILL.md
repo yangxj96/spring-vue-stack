@@ -1,6 +1,6 @@
 ---
 name: spring-vue-stack
-description: Apply repository-aware guidance to Spring Boot 4.x backend code, Vue 3.x frontend, PostgreSQL schema, Redis state/cache, and changes to their API or data contracts. Use only when a task touches these areas; preserve each project's conventions. 适用于相关技术栈代码修改与评审。
+description: Use when changing Spring Boot 4.x backend code, Vue 3.x frontend, PostgreSQL schema, Redis state/cache, or their API/data contracts in a project using these technologies.
 ---
 
 # Spring + Vue 技术栈开发指南
