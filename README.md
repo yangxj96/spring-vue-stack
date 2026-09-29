@@ -16,6 +16,41 @@
 
 除非工具的文档明确要求，否则不要把整个仓库复制到工具的 Skill 目录中。可移植单元是包含 `SKILL.md`、`references/`、`assets/` 与 `scripts/` 的 `spring-vue-stack` 文件夹。
 
+### opencode
+
+opencode 从 `.opencode/skills/<name>/SKILL.md`（项目级）或 `~/.config/opencode/skills/<name>/`（全局）发现技能，并兼容 `.claude/skills/`、`.agents/skills/`。项目级安装：
+
+```bash
+git clone --depth 1 git@github.com:yangxj96/spring-vue-stack.git /tmp/spring-vue-stack
+mkdir -p .opencode/skills
+cp -r /tmp/spring-vue-stack/skills/spring-vue-stack .opencode/skills/spring-vue-stack
+rm -rf /tmp/spring-vue-stack
+```
+
+（HTTPS URL：`https://github.com/yangxj96/spring-vue-stack.git`。）
+
+完整安装（固定目录/软链）、可选命令模板（`/new-feature`、`/db-migration`）与子 agent 见 [`integrations/opencode/README.md`](integrations/opencode/README.md)。
+
+## 新建项目快速开始
+
+1. 安装技能（见上，或 [`integrations/opencode/README.md`](integrations/opencode/README.md)）。
+2. 在目标项目根放置仓库指令：复制 `assets/AGENTS.template.md` 为 `AGENTS.md`，按项目填写命令与模块。
+3. 生成骨架（路径按安装位置二选一）：
+
+   ```bash
+   # opencode 项目级安装
+   node .opencode/skills/spring-vue-stack/scripts/scaffold.mjs --backend --frontend --agents --target .
+   # 或本仓库检出
+   node skills/spring-vue-stack/scripts/scaffold.mjs --backend --frontend --agents --target .
+
+   # 生成 Flyway 时间戳迁移
+   node .opencode/skills/spring-vue-stack/scripts/scaffold.mjs --migration --name create_xxx --target src/main/resources/db/migration
+   ```
+
+   复制出的模板是占位，改包名/表名/字段后再用。
+4. 让 Agent 按技能实现功能；契约先行，参考 [`references/examples.md`](skills/spring-vue-stack/references/examples.md)。
+5. 交付前按 [`references/docs-and-delivery.md`](skills/spring-vue-stack/references/docs-and-delivery.md) 的 Definition of Done 自查。
+
 ## 更新与版本固定
 
 Agent Skills 目录格式本身不会主动拉取更新。
@@ -56,7 +91,7 @@ Agent Skills 目录格式本身不会主动拉取更新。
 
 ## 校验
 
-`npm run validate`（或 `node skills/spring-vue-stack/scripts/validate.mjs`）校验 frontmatter、内链、禁词、大小预算与规则索引；CI 在 push/PR 自动执行。opencode 集成见 [`integrations/opencode/`](integrations/opencode/README.md)。
+`npm run validate`（或 `node skills/spring-vue-stack/scripts/validate.mjs`）校验 frontmatter、内链、禁词、大小预算与规则索引；CI 在 push/PR 自动执行。
 
 ## 许可证
 

@@ -4,7 +4,7 @@
 
 ## 资产清单
 
-- `assets/backend/`：`R`、`BizError`/`BizException`、`GlobalExceptionHandler`、`MybatisPlusConfig`、`AuditMetaObjectHandler`、`SnakeCaseWebConfig`、`Jackson3Config`、`Entity`/`Mapper`+XML/`Service`+`ServiceImpl`/`Controller`/`Converter`、`migration-template.sql`。
+- `assets/backend/`：`R`、`BizError`/`BizException`、`GlobalExceptionHandler`、`MybatisPlusConfig`、`AuditMetaObjectHandler`、`SnakeCaseWebConfig`、`Jackson3Config`、`Entity`/`From`/`VO`/`Mapper`+XML/`Service`+`ServiceImpl`/`Controller`/`Converter`、`migration-template.sql`。这些模板构成一个**最小可用功能骨架**（订单示例），相互引用可直接编译；复制后按实际业务改名/字段。
 - `assets/frontend/`：`request.ts`（fetch）、`upload.ts`（XHR）、`api-error.ts`、`page-result.ts`、`eslint.config.ts`、`.prettierrc.yml`、`.prettierignore`、`stylelint.config.mjs`、`date.ts`、`use-list.ts`、`store.ts`、`route-meta.ts`。
 - `assets/AGENTS.template.md`：目标仓库指令模板。
 

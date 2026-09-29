@@ -2,6 +2,7 @@
 name: spring-vue-stack
 description: Use when changing Spring Boot 4.x backend code, Vue 3.x frontend, PostgreSQL schema, Redis state/cache, or their API/data contracts in a project using these technologies. Encodes a canonical Java 25/Maven/MyBatis-Plus/Flyway/PostgreSQL/Redis and Vue 3/TypeScript/Vite/Pinia/Element Plus/SCSS stack with snake_case APIs, UUIDv7 primary keys, and a {code,message,data} response envelope. 适用于 Spring Boot 4 + Vue 3 项目的新功能、接口与契约、数据库迁移、前后端联调、脚手架与交付检查。
 license: MIT
+compatibility: 脚本需 Node.js 18+；适用于遵循 Agent Skills 规范、从本地目录发现技能的客户端。
 metadata:
   version: "1.0.0"
 ---

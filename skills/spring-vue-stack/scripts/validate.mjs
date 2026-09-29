@@ -6,7 +6,22 @@ import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const skillRoot = resolve(here, "..");
-const repoRoot = resolve(skillRoot, "..", "..");
+
+function argValue(name) {
+    const i = process.argv.indexOf(name);
+    return i >= 0 ? process.argv[i + 1] : undefined;
+}
+
+// 默认扫描本仓库根（skills/spring-vue-stack 上两级）；技能被单独复制时回退到技能目录。
+const explicitRoot = argValue("--root");
+let repoRoot;
+if (explicitRoot) {
+    repoRoot = resolve(explicitRoot);
+} else {
+    const candidate = resolve(skillRoot, "..", "..");
+    const looksLikeRepo = existsSync(join(candidate, "skills", "spring-vue-stack", "SKILL.md"));
+    repoRoot = looksLikeRepo ? candidate : skillRoot;
+}
 
 const errors = [];
 const warnings = [];

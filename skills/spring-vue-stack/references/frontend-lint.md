@@ -242,7 +242,7 @@ Stylelint 只负责 SCSS 语法、属性顺序和 BEM 选择器命名，与 Pret
 ```js
 // stylelint.config.mjs
 export default {
-    extends: ["stylelint-config-standard-scss", "stylelint-config-recess-order"],
+    extends: ["stylelint-config-standard-scss", "stylelint-config-recess-order", "stylelint-config-recommended-vue"],
     overrides: [
         {
             files: ["**/*.vue"],
