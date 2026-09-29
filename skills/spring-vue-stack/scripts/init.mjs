@@ -193,7 +193,7 @@ function initFrontend() {
         if (existsSync(dir) && readdirSync(dir).length > 0) {
             console.log(`目录非空，跳过 create-vite: ${dir}`);
         } else {
-            const r = spawnSync("pnpm", ["create", "vite", frontendName, "--template", "vue-ts"],
+            const r = spawnSync("pnpm", ["create", "vite", frontendName, "--template", "vue-ts", "--no-interactive", "--no-immediate"],
                 { cwd: target, stdio: "inherit", shell: true });
             if (r.status !== 0) {
                 throw new Error("pnpm create vite 失败；请确认已安装 pnpm 与网络可用");
