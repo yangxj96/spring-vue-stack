@@ -30,12 +30,13 @@ Agent Skills 目录格式本身不会主动拉取更新。
 
 ## 适用范围
 
-- 后端指导：Spring Boot 4.x、Java 25、Maven、MyBatis-Plus、Flyway，以及 Spring Security/Sa-Token 的服务/API 开发。
+- 后端指导：Spring Boot 4.x、Java 25、Maven、MyBatis-Plus（UUIDv7 主键）、Flyway、springdoc，以及 Spring Security/Sa-Token 的服务/API 开发。
 - 前端指导：Vue 3、TypeScript、Vite、Pinia、Vue Router、Element Plus、SCSS（BEM）、vue-i18n、pnpm 的界面开发。
 - 数据指导：PostgreSQL 表结构、查询，以及 Flyway 迁移。
 - 状态指导：Redis 缓存、UUID token 会话、安全状态与协调行为。
 - 交付指导：API 统一壳（`{code,message,data}`）、状态码、Schema、配置文档，以及项目级验证。
 - 注释指导：后端、前端与数据库建表的中文注释标准，深度分级 L1–L5，实现类不重复接口注释。
+- 契约与示例：`snake_case`、统一壳、UUIDv7 主键、Jackson 序列化契约，以及契约先行的端到端示例，见 [`references/examples.md`](skills/spring-vue-stack/references/examples.md)。
 
 本 Skill 采用**强约定**：除非目标仓库显式使用不同的 ORM、UI 库、状态管理器、路由、API 响应结构、认证设计、迁移工具或构建命令，否则一律按上述标准栈执行。一旦目标仓库有明确选择，则以仓库为准，并在变更说明中写明差异。标准栈是**默认强制约束**，不是迁移指令；本 Skill 不是项目脚手架，对版本敏感的细节仍会对照目标项目实际依赖核实。ESLint/Prettier/Stylelint 基线见 [`references/frontend-lint.md`](skills/spring-vue-stack/references/frontend-lint.md)。
 

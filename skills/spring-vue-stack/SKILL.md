@@ -1,6 +1,6 @@
 ---
 name: spring-vue-stack
-description: Use when changing Spring Boot 4.x backend code, Vue 3.x frontend, PostgreSQL schema, Redis state/cache, or their API/data contracts in a project using these technologies. Encodes a canonical Java 25/Maven/MyBatis-Plus/Flyway/PostgreSQL/Redis and Vue 3/TypeScript/Vite/Pinia/Element Plus/SCSS stack with snake_case APIs and a {code,message,data} response envelope.
+description: Use when changing Spring Boot 4.x backend code, Vue 3.x frontend, PostgreSQL schema, Redis state/cache, or their API/data contracts in a project using these technologies. Encodes a canonical Java 25/Maven/MyBatis-Plus/Flyway/PostgreSQL/Redis and Vue 3/TypeScript/Vite/Pinia/Element Plus/SCSS stack with snake_case APIs, UUIDv7 primary keys, and a {code,message,data} response envelope.
 ---
 
 # Spring + Vue 技术栈开发指南
@@ -9,9 +9,9 @@ description: Use when changing Spring Boot 4.x backend code, Vue 3.x frontend, P
 
 ## 标准栈
 
-- **后端**：Java 25 · Maven · Spring Boot 4.x · MyBatis-Plus · Flyway · PostgreSQL · Redis · Spring Security + Redis 存 UUID token（新项目可选 Sa-Token，二选一）· Lombok + MapStruct。
+- **后端**：Java 25 · Maven · Spring Boot 4.x · MyBatis-Plus（UUIDv7 主键）· Flyway · PostgreSQL · Redis · Spring Security + Redis 存 UUID token（新项目可选 Sa-Token，二选一）· Lombok + MapStruct · springdoc-openapi。
 - **前端**：Vue 3 + TypeScript · Vite · Pinia · Vue Router · Element Plus（完整引入）· SCSS + 严格 BEM · vue-i18n · pnpm · `fetch` 普通请求封装 + 原生 `XHR` 上传封装 · ESLint + Prettier + Stylelint · Vitest + Vue Test Utils · Playwright。
-- **契约**：JSON/查询参数 `snake_case`；统一壳 `{code,message,data}`，`code` 恒等于 HTTP 状态；分页用 MyBatis-Plus `Page`。
+- **契约**：JSON/查询参数 `snake_case`；统一壳 `{code,message,data}`，`code` 恒等于 HTTP 状态；分页用 MyBatis-Plus `Page`；主键 UUIDv7，长整型按需字符串化。
 
 完整清单、状态码表和二选一规则见 [standard-stack.md](references/standard-stack.md)。
 
@@ -26,6 +26,7 @@ description: Use when changing Spring Boot 4.x backend code, Vue 3.x frontend, P
 ## 按需读取
 
 - 标准栈、版本、二选一规则、统一壳与状态码：读取 [standard-stack.md](references/standard-stack.md)。
+- 契约先行的端到端示例（数据库→后端→前端）：读取 [examples.md](references/examples.md)。
 - 注释、Javadoc、TSDoc 或建表注释标准：读取 [comments.md](references/comments.md)。
 - Spring Boot、Java 服务端、API、事务、验证或安全边界：读取 [backend.md](references/backend.md)。
 - Vue 页面、组件、Composable、路由、状态或 API 调用：读取 [frontend.md](references/frontend.md)。

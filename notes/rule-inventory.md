@@ -28,3 +28,12 @@
 | 标准 | Element Plus、Pinia、Vue Router、Vite、pnpm、`kebab-case` 文件规则、`script`→`template`→`style` 块顺序。 | `docs/前端/01-前端管理后台.md`; `docs/前端/02-前端命名规范.md` | 采纳为标准前端栈与风格（见上方标准行）。 |
 | Spectra 专有 | Node 版本固定、`src/plugin/request`、加密/CSRF/token 刷新管线、路由、权限模型、上传服务细节。 | `docs/前端/05-前端请求与安全通信.md` | 应用功能与安全管线因项目而异；仅作示例保留。 |
 | Spectra 专有 | `scripts/check-docs.sh`、Spectra 的 AGENTS 路径、子项目布局、精确的 Maven/pnpm 命令、质量门禁顺序。 | `AGENTS.md`; `docs/前端/08-前端开发测试与构建.md`; `docs/开发指南/01-常见命令.md` | 发现目标项目的等价检查，而非复用命令。 |
+| 标准 | Jackson 序列化契约：`snake_case`、Long/BigInteger 按需字符串化、ISO-8601 时间、`null` 与集合、枚举字符串、BigDecimal。 | 评审新增 | 采纳为跨端数据契约。 |
+| 标准 | 时间语义区分绝对时刻（`Instant`/`OffsetDateTime` + `timestamptz`）与本地语义（`LocalDate`/`LocalTime` + `date`/`time`）；响应带偏移或 UTC，禁止无偏移本地时间；不在转换/序列化中读安全上下文做时区换算。 | 评审新增 | 采纳为时间标准（反模式 + 取舍）。 |
+| 标准 | MyBatis-Plus 持久化：实体字段显式 `@TableField(value)`/`@TableId`、`PaginationInnerInterceptor`、`OptimisticLockerInnerInterceptor`、`@TableLogic`、`@Version`、`MetaObjectHandler`、`BlockAttackInnerInterceptor`。 | 评审新增 | 采纳为持久化标准。 |
+| 标准 | 主键 UUIDv7（PostgreSQL 18 `uuidv7()`；不用 UUIDv4 / `ASSIGN_UUID`）。 | 评审新增 | 采纳为主键标准。 |
+| 标准 | Flyway 时间戳式命名 `V{yyyyMMddHHmmss}__{描述}.sql`，已执行迁移不改。 | 评审新增 | 采纳为迁移命名标准。 |
+| 标准 | 密码存储 `PasswordEncoder`（BCrypt/Delegating）与刷新令牌轮换。 | 评审新增 | 采纳为安全标准。 |
+| 标准 | 可观测性：traceId/MDC 透传、Actuator 健康/就绪探针。 | 评审新增 | 采纳为运维标准。 |
+| 标准 | API 文档 springdoc-openapi（展示 `snake_case` schema 与 Bearer 方案）。 | 评审新增 | 采纳为文档标准。 |
+| 标准 | 前端 dayjs、前后端类型契约同步、严格 BEM、开发期 mock 不进生产。 | 评审新增 | 采纳为前端标准；代码生成、MSW、Sentry、WebSocket 按需采用。 |

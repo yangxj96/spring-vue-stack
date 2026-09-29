@@ -75,3 +75,27 @@
 **推演决策：** 遵循仓库自身的指令和框架。本 Skill 不是迁移指令；若仍有某个窄范围的 Spring 后端细节相关，只有在契合实际项目与版本、并核实了当前文档后才使用。
 
 **结论：** 通过。本包不要求迁移到标准栈。
+
+## 7. 大数 ID 与序列化契约
+
+**请求：**“新增一个订单详情接口，其中外部系统的订单编号是 19 位 bigint。”
+
+**目标项目事实：** 标准栈主键为 UUIDv7 字符串，但该外部字段是 `long`。
+
+**路由：** 涉及序列化契约与前端处理，读取 `standard-stack.md`、`references/backend.md`、`references/frontend.md`。
+
+**推演决策：** 主键按 UUIDv7 字符串处理；对超过 JS 安全整数（2^53-1）的 `Long`/`BigInteger` 字段在 Jackson 配置中序列化为字符串，前端按字符串使用，不当作 `number` 运算，避免精度丢失。
+
+**结论：** 通过。序列化规则与前后端处理一致。
+
+## 8. MyBatis-Plus 分页与自动填充
+
+**请求：**“给用户模块加分页查询，并让创建人/创建时间自动写入。”
+
+**目标项目事实：** 使用 MyBatis-Plus，服务层继承 `IService`/`ServiceImpl`。
+
+**路由：** 涉及持久化实现，读取 `references/backend.md`。
+
+**推演决策：** 分页用 `PaginationInnerInterceptor` + `Page`，不手写分页 SQL；审计字段由 `MetaObjectHandler` 统一填充，不在 Service 手工 `set`；并发更新用 `OptimisticLockerInnerInterceptor` + `@Version`，删除用 `@TableLogic`，并启用防全表更新/删除拦截器。主键用 UUIDv7，不使用 `IdType.ASSIGN_UUID`（UUIDv4）。
+
+**结论：** 通过。插件与自动填充按标准栈落地，未重复造轮子。

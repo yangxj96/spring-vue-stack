@@ -138,7 +138,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
 - API 线上的入参和响应字段名统一使用 `snake_case`（下划线分隔单词）；包括 JSON 请求体、JSON 响应体，以及 GET 查询参数名。Java 字段、方法参数和内部属性继续使用小驼峰，例如 JSON/query 中的 `user_name` 对应 Java 属性 `userName`。优先通过项目统一的 JSON 序列化配置完成请求/响应字段映射，不要在每个 DTO 上重复配置，也不要因此改动数据库列名约定。
 - GET 查询参数在客户端使用 `snake_case`，后端需通过统一的 Spring MVC 配置/参数绑定适配机制将参数名映射到 Java 小驼峰属性；例如 `?user_name=alice` 绑定到 `userName`。Spring MVC 不应被假定会自动完成这种名称转换。适配需同时覆盖项目实际使用的直接 `@RequestParam` 和查询 From/`@ModelAttribute` 绑定方式，保留同名多值参数（如数组/集合），并对转换后发生名称冲突的输入明确拒绝或按项目定义处理；不要只在 Controller 中对个别参数手工改名。
 - JSON 命名策略和 GET 参数适配属于两套不同的绑定路径，应分别检查和验证：覆盖含下划线字段、空值、集合/重复参数、分页参数及名称冲突等情况。生成的 OpenAPI/接口文档和前端类型也应展示线上 `snake_case` 名称。
-- 响应统一使用统一壳 `{code,message,data}`，`code` 恒等于本次 HTTP 状态码：查询/更新成功 `200`，新建成功 `201`，删除/无返回操作成功 `204`（空 body），参数/语义失败 `400`，未认证 `401`，无权限 `403`，不存在 `404`，状态冲突 `409`，服务端异常 `500`。错误一定有 body，成功可以无 body（仅 `204`）；不要用 HTTP 200 包装所有失败，也不要将内部异常文本直接作为错误响应。完整状态码表见 [standard-stack.md](standard-stack.md)。
+- 响应统一使用统一壳 `{code,message,data}`（Java 侧类型为 `R<T>`），`code` 恒等于本次 HTTP 状态码：查询/更新成功 `200`，新建成功 `201`，删除/无返回操作成功 `204`（空 body），参数/语义失败 `400`，未认证 `401`，无权限 `403`，不存在 `404`，状态冲突 `409`，服务端异常 `500`。错误一定有 body，成功可以无 body（仅 `204`）；不要用 HTTP 200 包装所有失败，也不要将内部异常文本直接作为错误响应。完整状态码表见 [standard-stack.md](standard-stack.md)。
 - 列表接口采用有界分页或明确的结果上限；校验页码、页大小和筛选范围。分页响应固定为 `200` + `data` 为 MyBatis-Plus `Page`（`records`/`total`/`size`/`current`/`pages`），按全局 snake_case 序列化。排序字段、方向和可筛选字段必须由服务端允许列表控制；排序需要稳定的次序以避免翻页时遗漏或重复。优先复用项目统一分页模型，不让每个 Controller 自创不同格式。
 - 明确方法的幂等性和重复提交语义。符合 HTTP 语义的安全/幂等方法不得产生意外副作用；创建、支付等可能重复执行的操作，按业务需要采用项目既有幂等键或去重约束。
 - API 输入使用 From 或项目现有请求类型，输出使用 VO 或项目现有响应类型。不要未经审查直接将 ORM Entity 暴露给 API，也不要把 API 字段变化当成内部重构。
@@ -148,10 +148,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
 - 对 API 路径、HTTP 方法、字段、含义、错误码、状态码或权限要求的变化，检查前端调用方、其他客户端和接口文档。
 - 复用项目现有异常类型、全局异常处理和错误响应。对预期业务失败使用有语义的项目异常，不使用裸通用异常表达所有失败；保留内部诊断原因，但不向调用方泄露堆栈、SQL、凭据或内部实现。
 - 对受控的封闭值域使用枚举或项目已有的类型化表示；第三方可能扩展的开放值在适配边界处理，不要错误地拒绝未知值。
+- API 文档使用项目既有的 springdoc/OpenAPI 生成：为端点标注用途与错误码，展示线上 `snake_case` schema，Bearer 安全方案可一键授权，内部端点不出现在公开文档中。
+- 统一异常处理使用 `@RestControllerAdvice`（或项目等价机制）：把业务异常映射到标准 HTTP 状态与统一响应壳；**必须包含一个兜底处理器**（如 `@ExceptionHandler(Exception.class)`）捕获未预期异常，对内记录完整日志（含 traceId），对外只返回 `500` 与安全、稳定的提示，绝不泄露堆栈、SQL、凭据或内部实现。
+
+## 序列化与 JSON 契约
+
+统一通过全局 Jackson 配置完成（`ObjectMapper`/`Jackson2ObjectMapperBuilderCustomizer` 或项目等价机制），不在单个 DTO/VO 上重复配置。完整契约见 [standard-stack.md](standard-stack.md)。
+
+- **字段命名**：JSON 请求/响应使用 `snake_case`，Java 属性保持小驼峰（见 API 章节）。
+- **Long / BigInteger 精度**：主键为 UUIDv7 字符串；任何 `Long`/`BigInteger` 超过 JS 安全整数（2^53-1）时必须序列化为字符串，避免前端 JS 精度丢失；这类字段一出现就应检查是否需要字符串化。
+- **时间**：绝对时刻输出带偏移或 UTC，本地语义用 `LocalDate`/`LocalTime`；两类时间的选型与反模式见 [standard-stack.md](standard-stack.md) 的「时间语义与取舍」，格式集中配置。
+- **null 与集合**：按需决定是否输出 `null` 字段（默认输出以保持契约稳定）；集合默认返回空数组而非 `null`，减少前端空判断。
+- **枚举**：对外输出稳定的字符串（枚举名或约定码），不输出 ordinal；新增取值前评估前端与旧客户端兼容。
+- **BigDecimal**：金额等精确值按约定格式输出，避免二进制浮点误差。
+- 修改任何序列化规则都会影响全部接口，应评估对已有客户端的影响并同步接口文档。
 
 ## 时间、日志与审计
 
 - API 日期和时间字段使用清楚、稳定且在接口文档中声明的格式。对带时刻的数据明确时区/偏移语义；持久化和跨系统交换不要依赖服务器默认时区。用户本地时间应在明确的时区边界转换。
+- **时间语义要区分**：绝对时刻用 `Instant`/`OffsetDateTime` + `timestamptz`；生日、每日时刻等本地语义用 `LocalDate`/`LocalTime` + `date`/`time`，不要一律存成瞬时。
+- **不要在模型转换或序列化中读取安全上下文做时区换算**：需要用户时区时把它作为**显式参数**传入，或放到独立的展示层处理；否则未认证、异步、定时任务、系统间调用会得到不一致结果，还会引入循环依赖。按用户时区本地化后也必须带偏移（`OffsetDateTime`），不得返回无偏移的 `LocalDateTime`。
 - 诊断日志用于排障，业务审计用于回答谁在何时对什么资源执行了什么操作；遵循项目的日志级别、关联 ID 和审计设施，不在业务代码中重复写审计记录。
 - 日志只记录排障所需的最少信息。不得记录密码、访问令牌、完整认证头、密钥或未脱敏的敏感请求/回调正文；记录第三方错误时先筛除其响应中的敏感字段。
 - 不要捕获异常后静默忽略或只记录后返回成功。转换异常时保留 cause 和可诊断上下文，同时通过统一异常映射对外返回安全、稳定的错误结构。
@@ -164,6 +180,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
 - 只在能够恢复、转换或补充上下文的边界捕获异常，优先捕获具体类型。不得空 catch、只打印后继续成功返回，或为方便捕获整个大段不相关逻辑。
 - 使用 try-with-resources 管理流、连接等资源。不要在 `finally` 中 return 或抛出新异常覆盖原始异常；保证事务异常按项目回滚规则向事务边界传播。
 - 不捕获 `NullPointerException` 等程序缺陷来替代输入校验。转换异常时保留原始 cause，避免同一异常在多个层重复打印堆栈。
+
+## 可观测性
+
+- **链路标识**：入口过滤器/拦截器生成或透传 `traceId` 并写入 MDC，日志格式统一输出；跨线程、异步与远程调用时传递，便于排障。
+- **健康检查**：使用 Actuator 暴露 `health`（含 `liveness`/`readiness` 探针）与必要的 `info`/`metrics`；只暴露必要端点并做访问控制，不对外泄露敏感信息。
+- **指标**：关键业务与依赖调用可按项目规范埋点；指标名与标签保持稳定，避免高基数标签。
+- **日志**：结构化、可检索，包含 traceId 与关键业务标识；遵循项目日志级别，不在业务代码重复写审计。
 
 ## 集合与并发安全
 
@@ -196,11 +219,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
 - 对并发修改检查唯一约束、乐观锁/版本字段、行锁或条件更新等项目既有策略；不能仅靠“先查询再写入”保证唯一性或库存等不变量。
 - PostgreSQL 的字段类型、Schema、索引与迁移规则见 [postgres.md](postgres.md)；ORM 专有行为以项目使用的库及版本为准。
 
+## MyBatis-Plus 插件与持久化增强
+
+- **主键**：实体主键使用 UUIDv7。优先数据库默认 `uuidv7()`（PostgreSQL 18），应用侧生成时也用同一版本；不要把 MyBatis-Plus 的 `IdType.ASSIGN_UUID`（UUIDv4）当成 UUIDv7。DB 生成用 `@TableId(type = IdType.INPUT)`；应用生成用 `IdType.ASSIGN_ID` 并注册自定义 `IdentifierGenerator`。
+- **实体字段注解**：实体**每个字段都显式标注列名**，不依赖字段名与列名的隐式映射：普通字段用 `@TableField(value = "列名")`；主键用 `@TableId(value = "id", type = ...)`（与 `@TableField` 不重复标注）；特殊字段追加对应注解——逻辑删除 `@TableLogic(value = "false", delval = "true")`（按布尔列取值）、乐观锁 `@Version`、自动填充 `@TableField(value = "列名", fill = FieldFill.INSERT/INSERT_UPDATE)`。所有列名用数据库实际的 snake_case 名称。
+- **分页**：通过 `MybatisPlusInterceptor` + `PaginationInnerInterceptor` 配置分页，统一使用 `Page`；不要在各处 SQL 手写分页。
+- **乐观锁**：使用 `OptimisticLockerInnerInterceptor` 配合 `@Version` 字段；更新必须带版本条件，不能只靠“先查再写”。
+- **逻辑删除**：使用全局逻辑删除配置（`@TableLogic` 或配置项），查询自动过滤已删除数据；需要物理删除时显式处理，不散落 `deleted` 条件。
+- **自动填充**：用 `MetaObjectHandler` 统一填充创建/更新人与时间；禁止在 Controller/Service 手工设置这些审计字段。
+- **枚举映射**：数据库用 varchar 存枚举名或约定码；实体枚举字段显式配置映射（`@EnumValue`/`IEnum` 或全局 enum type handler），确保写入名称/码而非 ordinal，并用集成测试覆盖读写。
+- **防误操作**：启用 `BlockAttackInnerInterceptor`（或项目等价措施）阻止无 where 的全表更新/删除。
+- 插件的注册顺序与条件以项目配置为准；新增插件前确认不会与已有插件或租户/数据权限插件冲突。
+
 ## 认证、授权与会话
 
 标准方案为 **Spring Security + Redis 存 UUID token**；新项目在团队接受其权限模型时可选 **Sa-Token** 作为替代。二者二选一，不混用；接管存量项目先确认其安全栈再改。
 
 - token 为 UUID，服务端将会话状态保存在 Redis，通过请求头 `Authorization: Bearer <uuid>` 携带；不要用可预测的自增 ID 或明文凭据作为 token。
+- **密码存储**：用户密码使用 `PasswordEncoder`（BCrypt 或 `DelegatingPasswordEncoder`/Argon2）哈希存储，登录用 `matches` 校验；禁止明文、MD5、SHA 等弱哈希，不把原始密码写入日志或返回体。
+- **刷新令牌**：需要长会话时使用独立的刷新 token（不透明随机值，存 Redis，TTL 长于访问 token），使用即轮换，注销/改密/封禁时撤销；访问 token 过期走刷新流程，刷新失败返回 401。
 - 认证过滤器/拦截器统一校验 token 并把安全上下文交给 Spring Security；授权按端点与资源级校验，确需公开的端点显式放行。
 - 登录、注销、并发登录、token 过期与刷新等行为由项目既有安全组件集中处理，不在各 Controller 重复实现。
 - 401 用于未认证（无/无效/过期），403 用于已认证但无权限；两者都通过统一异常处理按统一响应壳返回。
@@ -209,12 +246,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
 ## 安全与外部依赖
 
 - 对每个操作分别检查身份认证、资源级授权、租户/数据范围和输入可信度。UI 隐藏功能不构成授权；不能只验证资源 ID 存在，还要验证当前主体能否访问它。
+- **CORS / 跨域**：允许来源使用显式白名单并按环境配置；携带凭据时禁止 `allowCredentials(true)` 搭配 `*`；生产环境不使用宽松通配。
 - 使用参数绑定处理 SQL 值；对动态 SQL 结构使用允许列表。避免把未经净化的输入用于文件路径、命令或日志格式。
 - 对用户敏感数据按最小必要原则读取、传输、记录和展示；面向无权查看完整值的调用方或日志时按项目策略脱敏。输出到 HTML/模板时采用上下文适配的转义，避免把不可信内容当作可执行标记。
 - 对反序列化、重定向、正则、文件路径、批量参数和高成本查询等边界验证输入并设置合理大小/频率限制。验证码、短信、邮件、登录和支付等可被滥用的操作，应使用项目已有的限流、防重放或频控机制。
 - 区分普通性能缓存和安全/业务状态；外部依赖故障时的允许行为由状态语义和安全要求决定，详见 [redis.md](redis.md)。
 - 调用远程服务时为超时、错误映射和重试定义明确策略；日志记录必要的关联信息，但不输出认证头、凭据或敏感业务数据。
 - 处理第三方 Webhook/回调时，按协议验证签名或认证信息，对报文大小和字段做限制，校验时间戳/重放风险，并为重复投递设计幂等处理。原始报文仅在确有验签需要时短暂使用，避免写入普通日志。
+
+## 文件上传与下载
+
+- 上传接口配置并限制 multipart 大小（`spring.servlet.multipart.max-file-size` / `max-request-size`），在服务端校验文件类型、扩展名、大小与业务归属，不信任前端声明的类型。
+- 文件存储走项目既有的 `integration` 存储抽象（本地 / 对象存储），不要把大文件整块读进内存；元数据与业务数据的事务边界要明确。
+- 下载/导出使用流式响应，正确设置 `Content-Type`、`Content-Disposition`，并做权限与数据范围校验；避免把内部路径暴露给调用方。
+- 可被滥用的上传/下载按项目限流与防重放机制处理（见“安全与外部依赖”）。
 
 ## 启动任务与后台处理
 
