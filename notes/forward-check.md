@@ -16,7 +16,7 @@
 
 ## 2. 不同 Schema 边界下的 PostgreSQL 迁移
 
-**请求：**“给 inventory 表加 `(tenant_id, external_id)` 唯一约束，并迁移现有数据。”
+**请求：**“给 inventory 表加 `(warehouse_id, external_id)` 唯一约束，并迁移现有数据。”
 
 **目标项目事实：** PostgreSQL；项目显式配置 Liquibase changelog；业务表位于 `inventory` Schema；现有值可能重复。
 
@@ -99,3 +99,15 @@
 **推演决策：** 分页用 `PaginationInnerInterceptor` + `Page`，不手写分页 SQL；审计字段由 `MetaObjectHandler` 统一填充，不在 Service 手工 `set`；并发更新用 `OptimisticLockerInnerInterceptor` + `@Version`，删除用 `@TableLogic`，并启用防全表更新/删除拦截器。主键用 UUIDv7，不使用 `IdType.ASSIGN_UUID`（UUIDv4）。
 
 **结论：** 通过。插件与自动填充按标准栈落地，未重复造轮子。
+
+## 9. 用资产脚手架搭一个新模块
+
+**请求：**“在现有项目里新增 order 模块的后端骨架和一张表。”
+
+**目标项目事实：** 标准栈，已装本技能。
+
+**路由：** 涉及整合新模块，读取 `references/scaffolding.md`，必要时看 `assets/`。
+
+**推演决策：** 用 `scripts/scaffold.mjs --backend --target <模块目录>` 复制模板，再用 `--migration --name create_biz_order` 生成 UTC 时间戳迁移；复制后把占位包名 `com.example.app`、表名 `biz_order`、字段与注释改为实际值，并复核 `R<T>`、UUIDv7、`@TableField`、表列 `COMMENT`。不原样提交占位模板。
+
+**结论：** 通过。资产是起点，落地前按标准改占位并复核契约。

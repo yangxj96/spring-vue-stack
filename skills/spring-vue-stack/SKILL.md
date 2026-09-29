@@ -1,6 +1,9 @@
 ---
 name: spring-vue-stack
-description: Use when changing Spring Boot 4.x backend code, Vue 3.x frontend, PostgreSQL schema, Redis state/cache, or their API/data contracts in a project using these technologies. Encodes a canonical Java 25/Maven/MyBatis-Plus/Flyway/PostgreSQL/Redis and Vue 3/TypeScript/Vite/Pinia/Element Plus/SCSS stack with snake_case APIs, UUIDv7 primary keys, and a {code,message,data} response envelope.
+description: Use when changing Spring Boot 4.x backend code, Vue 3.x frontend, PostgreSQL schema, Redis state/cache, or their API/data contracts in a project using these technologies. Encodes a canonical Java 25/Maven/MyBatis-Plus/Flyway/PostgreSQL/Redis and Vue 3/TypeScript/Vite/Pinia/Element Plus/SCSS stack with snake_case APIs, UUIDv7 primary keys, and a {code,message,data} response envelope. 适用于 Spring Boot 4 + Vue 3 项目的新功能、接口与契约、数据库迁移、前后端联调、脚手架与交付检查。
+license: MIT
+metadata:
+  version: "1.0.0"
 ---
 
 # Spring + Vue 技术栈开发指南
@@ -35,12 +38,28 @@ description: Use when changing Spring Boot 4.x backend code, Vue 3.x frontend, P
 - PostgreSQL 表结构、SQL、索引、约束或数据迁移：读取 [postgres.md](references/postgres.md)。
 - Redis 缓存、安全状态、并发或故障语义（仅涉及 Redis 时）：读取 [redis.md](references/redis.md)。
 - API、Schema、配置文档同步或交付检查：读取 [docs-and-delivery.md](references/docs-and-delivery.md)。
+- 版本基线与兼容注意：读取 [version-baseline.md](references/version-baseline.md)。
 
 **冷文件（仅在任务匹配时读取，不要预读）**：
 
 - 契约先行的端到端示例（仅在搭新功能/看整体结构时）：[examples.md](references/examples.md)。
+- 从 `assets/` 复制模板或跑脚手架（仅在整合新项目/新模块时）：[scaffolding.md](references/scaffolding.md)。
+- 测试深化（Testcontainers/MockMvc/前端测试，仅在写测试时）：[testing.md](references/testing.md)。
+- 前端页面模式（CRUD/权限/表单/可访问性，仅在写管理后台页面时）：[frontend-patterns.md](references/frontend-patterns.md)。
 - 常见坑索引（仅在排障或交付前自查时）：[pitfalls.md](references/pitfalls.md)。
 - 注释、Javadoc、TSDoc、建表注释（仅在新增/修改注释时）：[comments.md](references/comments.md)。
 - ESLint/Prettier/Stylelint 标准配置（仅在调整 lint/格式时）：[frontend-lint.md](references/frontend-lint.md)。
 
 若变更跨越多个领域，只加载实际影响的参考，并协调各层的契约。
+
+## 资产与脚本
+
+- `assets/backend/`、`assets/frontend/`、`assets/AGENTS.template.md` 是可复制模板；用法见 [scaffolding.md](references/scaffolding.md)。模板为占位，复制后必须改包名/表名/字段。
+- `scripts/scaffold.mjs`：复制模板或生成 Flyway 时间戳迁移文件。
+- `scripts/validate.mjs`：校验 frontmatter、内链、禁词、大小预算与规则索引。
+
+## 不适用场景
+
+- 任务不涉及 Spring Boot 4.x / Vue 3.x / PostgreSQL / Redis（例如纯脚本、其它框架或无关改动）时，不要加载本技能。
+- 目标仓库显式使用不同技术栈（如 JPA、React、其它迁移工具）时遵循仓库自身；本技能是默认约定，不是迁移指令。
+- 不要把标准栈里的可选项（如 Sa-Token）当成所有项目都必须采用。

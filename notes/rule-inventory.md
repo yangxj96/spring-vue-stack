@@ -58,3 +58,8 @@
 | 交付核对与 Definition of Done | `references/docs-and-delivery.md` |
 | 常见坑索引 | `references/pitfalls.md` |
 | 端到端示例 | `references/examples.md` |
+| 版本基线与兼容注意 | `references/version-baseline.md` |
+| 脚手架与资产使用 | `references/scaffolding.md` |
+| 测试深化（后端/前端） | `references/testing.md` |
+| 前端页面模式（CRUD/权限/表单/可访问性） | `references/frontend-patterns.md` |
+| 可复制模板与脚本 | `assets/`、`scripts/` |

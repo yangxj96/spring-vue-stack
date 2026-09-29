@@ -2,7 +2,7 @@
 
 用于 Vue 3 页面、组件、Composable、路由、状态及服务端 API 集成。
 
-标准栈：Vue 3 + TypeScript · Vite · Pinia · Vue Router · Element Plus（完整引入）· SCSS + 严格 BEM · vue-i18n · pnpm。普通请求用 `fetch` 封装，文件上传用原生 `XHR` 封装。代码质量与格式见 [frontend-lint.md](frontend-lint.md)。目标仓库显式使用其它方案时以仓库为准。
+标准栈：Vue 3 + TypeScript · Vite · Pinia · Vue Router · Element Plus（完整引入）· SCSS + 严格 BEM · vue-i18n · pnpm。普通请求用 `fetch` 封装，文件上传用原生 `XHR` 封装。代码质量与格式见 [frontend-lint.md](frontend-lint.md)。管理后台常见模式（CRUD 列表页、权限指令、表单、校验 i18n、可访问性）见 [frontend-patterns.md](frontend-patterns.md)。目标仓库显式使用其它方案时以仓库为准。
 
 ## 开工探测清单
 

@@ -1,0 +1,11 @@
+{
+  "name": "spring-vue-stack-skill",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Portable Agent Skills package for Spring Boot + Vue projects.",
+  "scripts": {
+    "validate": "node skills/spring-vue-stack/scripts/validate.mjs",
+    "scaffold": "node skills/spring-vue-stack/scripts/scaffold.mjs"
+  }
+}

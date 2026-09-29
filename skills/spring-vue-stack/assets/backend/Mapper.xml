@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace 必须精确指向 Mapper 全限定类名；即使暂无自定义语句也保持接口与 XML 一一对应 -->
+<mapper namespace="com.example.app.order.mapper.OrderMapper">
+
+    <!-- 复杂查询、多表连接、批量写在此；简单 CRUD 用 BaseMapper/条件构造器 -->
+
+</mapper>

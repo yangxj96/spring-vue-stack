@@ -131,6 +131,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
 }
 ```
 
+## Spring Boot 4 与出站调用
+
+- 出站 HTTP 调用优先使用 Spring 的 `RestClient`（或声明式 `@HttpExchange` 接口），统一处理超时、错误映射与重试；不要让底层 HTTP 细节散落各处。
+- 版本基线与 Boot 4 / Jackson 3 兼容注意见 [version-baseline.md](version-baseline.md)；AOT/native 场景按官方提示配置，不要把运行期反射的假设带进 native 构建。
+
 ## API 边界、验证与异常
 
 - Controller 负责 HTTP 路由、参数绑定、调用 Service 和适配响应；不要在其中编排多步业务规则或直接调用 Mapper。端点优先遵循项目已发布的 API 契约；新接口采用项目统一的 REST 风格，不能以风格整理为由私自更改已有路径或语义。

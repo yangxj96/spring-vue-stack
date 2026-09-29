@@ -29,4 +29,4 @@
 - **自动填充**：用 `MetaObjectHandler` 统一填充创建/更新人与时间；禁止在 Controller/Service 手工设置这些审计字段。
 - **枚举映射**：数据库用 varchar 存枚举名或约定码；实体枚举字段显式配置映射（`@EnumValue`/`IEnum` 或全局 enum type handler），确保写入名称/码而非 ordinal，并用集成测试覆盖读写。
 - **防误操作**：启用 `BlockAttackInnerInterceptor`（或项目等价措施）阻止无 where 的全表更新/删除。
-- 插件的注册顺序与条件以项目配置为准；新增插件前确认不会与已有插件或租户/数据权限插件冲突。
+- 插件的注册顺序与条件以项目配置为准；新增插件前确认不会与已有插件或数据权限插件冲突。
