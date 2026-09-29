@@ -1,75 +1,77 @@
-# Manual forward-check
+# 手动前向检查
 
-These are desk simulations: apply the Skill description, routing rules, and reference guidance to representative prompts and target-project facts. They do not claim that an agent runtime was installed or invoked.
+以下为桌面推演：把 Skill 的描述、路由规则和参考指导应用到有代表性的提示词与目标项目事实上。它们不代表 Agent 运行时已被安装或调用。
 
-## 1. Spring Boot feature in a JPA project
+## 1. 标准栈项目中的 Spring Boot 功能
 
-**Request:** “Add a paginated endpoint for listing invoices in this Spring Boot 4 project.”
+**请求：**“在这个 Spring Boot 4 项目里新增一个分页查询发票的端点。”
 
-**Target-project facts:** The project uses Spring Data JPA, a `InvoiceRepository`, and an existing application-service layer.
+**目标项目事实：** Java 25、Maven、Spring Boot 4.x、MyBatis-Plus；已有 `InvoiceMapper extends BaseMapper<InvoiceEntity>` 且带同名 XML；服务层使用 `IService`/`ServiceImpl`。
 
-**Route:** The task touches backend/API work, so read `SKILL.md` and `references/backend.md`.
+**路由：** 任务涉及后端/API 工作，读取 `SKILL.md`、`standard-stack.md` 和 `references/backend.md`。
 
-**Simulated decision:** Inspect the existing endpoint, repository, service, API contract, and tests first. Continue using Spring Data JPA and the existing service boundary. Do not introduce MyBatis, Mapper XML, or a new layering scheme. Check pagination and authorization against this project's existing contract.
+**推演决策：** 应用标准栈：新增 `InvoiceService extends IService<InvoiceEntity>` 与 `InvoiceServiceImpl extends ServiceImpl<InvoiceMapper, InvoiceEntity>`，用 MyBatis-Plus `Page` 实现分页，返回 HTTP 200 与 `{code:200,message:"OK",data:<Page>}`，请求/响应字段使用 `snake_case`。不要另造平行的响应结构。对照项目契约检查授权与现有测试。
 
-**Outcome:** Pass. The project-selected ORM and architecture are preserved.
+**结论：** 通过。标准后端栈、统一壳与命名均被应用。
 
-## 2. PostgreSQL migration with another tool and Schema boundary
+## 2. 不同 Schema 边界下的 PostgreSQL 迁移
 
-**Request:** “Add a unique constraint for `(tenant_id, external_id)` to the inventory tables and migrate existing data.”
+**请求：**“给 inventory 表加 `(tenant_id, external_id)` 唯一约束，并迁移现有数据。”
 
-**Target-project facts:** PostgreSQL; Liquibase changelogs; business tables are in the `inventory` Schema; existing values may be duplicated.
+**目标项目事实：** PostgreSQL；项目显式配置 Liquibase changelog；业务表位于 `inventory` Schema；现有值可能重复。
 
-**Route:** The request changes a database contract, so read `SKILL.md` and `references/postgres.md`.
+**路由：** 请求改动数据库契约，读取 `SKILL.md` 和 `references/postgres.md`。
 
-**Simulated decision:** Inspect Liquibase conventions, schema-qualified objects, table size, duplicate rows, deployment compatibility, and current indexes before writing a changelog. Define a duplicate-detection/remediation step and a safe rollout. Do not assume Flyway, public Schema, Spectra prefixes, or that the constraint can be added without data cleanup.
+**推演决策：** 标准迁移工具是 Flyway，但仓库显式声明使用 Liquibase——以仓库为准。编写 changelog 前先检查 Liquibase 约定、带 Schema 限定的对象、表规模、重复行、部署兼容性和现有索引。定义重复检测/修复步骤与安全上线方案。
 
-**Outcome:** Pass. Migration tool, Schema boundary, existing data, and rollout safety are discovered first.
+**结论：** 通过。标准默认被项目的显式选择覆盖，并记录了差异。
 
-## 3. Redis unavailable during authentication state validation
+## 3. token 校验期间 Redis 不可用
 
-**Request:** “Redis times out while checking whether the current refresh token has already been consumed. What should the service do?”
+**请求：**“校验当前登录 token 时 Redis 超时，服务应如何处理？”
 
-**Target-project facts:** Redis stores a security-relevant one-time token state; the repository has an authentication contract and centralized error mapping.
+**目标项目事实：** 标准栈在 Redis 存 UUID token 会话；仓库有集中式错误映射。
 
-**Route:** The request changes or evaluates security state, so read `SKILL.md` and `references/redis.md`; read the relevant backend security guidance if changing the endpoint behavior.
+**路由：** 请求评估安全状态，读取 `SKILL.md`、`references/redis.md` 以及后端安全章节。
 
-**Simulated decision:** Do not reinterpret the timeout as “token not consumed” and do not silently retry into business logic. Trace the project's security contract and existing outage mapping, then use its required deny/retry/error behavior. Do not copy Spectra's HTTP status or executor implementation.
+**推演决策：** 把会话视为安全事实源。不要把超时解释为“token 有效”或“token 不存在”，也不要静默重试进入业务逻辑。按集中式错误映射返回 fail-closed 结果（标准取 401/500，或按仓库契约）。不要照搬 Spectra 的具体状态码或执行器实现。
 
-**Outcome:** Pass. No blanket fail-open rule or Spectra-specific response is imposed; the security contract controls.
+**结论：** 通过。Redis 作为安全状态的规则生效；没有一刀切的 fail-open。
 
-## 4. Vue feature with a different state library and UI kit
+## 4. 使用标准 UI 库的 Vue 功能，以及一处显式覆盖
 
-**Request:** “Add an editable customer table to this Vue 3 app.”
+**请求：**“给这个 Vue 3 应用加一个可编辑的客户表格。”
 
-**Target-project facts:** The app uses a project-specific composable store and Naive UI; it does not use Pinia or Element Plus.
+**目标项目事实：** 一个变体使用标准栈（Element Plus、Pinia、两套 `fetch`/`XHR` 客户端）。另一个仓库显式声明使用 Naive UI 和自定义 composable store。
 
-**Route:** The task changes a Vue page and API usage, so read `SKILL.md` and `references/frontend.md`; read `backend.md` only if the API contract also changes.
+**路由：** 任务改动 Vue 页面和 API 调用，读取 `SKILL.md`、`references/frontend.md` 和 `references/frontend-lint.md`。
 
-**Simulated decision:** Inspect adjacent pages, the store/composable, UI kit, request layer, and lint rules. Build the table using the existing composable store and Naive UI. Do not add Pinia or Element Plus. Preserve the API's actual loading/error and permission behavior.
+**推演决策：**
+- 标准项目：用 Element Plus 构建表格，通过共享 `fetch` 客户端加载数据，处理 `{code,message,data}` 统一壳与 `204` 无内容情况，遵守 `script`→`template`→`style` 顺序与 BEM。
+- 覆盖项目：使用 Naive UI 和现有 composable store，并记录偏离。不要引入 Element Plus 或 Pinia。
 
-**Outcome:** Pass. Existing frontend libraries and patterns are retained.
+**结论：** 通过。默认应用标准；项目的显式选择获胜并被记录。
 
-## 5. Unrelated task in a repository that also uses the stack
+## 5. 同时使用该技术栈的仓库中的无关任务
 
-**Request:** “Fix the spelling in an unrelated Python data-cleanup script.”
+**请求：**“修正一个无关的 Python 数据清理脚本里的拼写。”
 
-**Target-project facts:** The repository contains the supported stack, but this change touches only a standalone Python utility.
+**目标项目事实：** 仓库包含受支持的技术栈，但本次改动只涉及一个独立的 Python 工具。
 
-**Route:** The Skill description says to use it only when a task touches its listed backend, frontend, database, Redis, or cross-layer areas. This request does not meet that condition.
+**路由：** Skill 描述说明仅当任务涉及所列后端、前端、数据库、Redis 或跨层领域时才使用。本请求不满足该条件。
 
-**Simulated decision:** Do not load this Skill's stack references or impose Java/Vue/PostgreSQL/Redis conventions on the Python utility.
+**推演决策：** 不加载本 Skill 的技术栈参考，也不把 Java/Vue/PostgreSQL/Redis 约定强加到该 Python 工具上。
 
-**Outcome:** Pass. The repository's stack alone does not force activation for an unrelated task.
+**结论：** 通过。仅凭仓库使用该技术栈不会让无关任务触发本 Skill。
 
-## 6. Project outside the supported stack
+## 6. 受支持技术栈之外的项目
 
-**Request:** “Add a React page backed by SQLite to this Spring Boot 3 project.”
+**请求：**“给这个 Spring Boot 3 项目加一个由 SQLite 支撑的 React 页面。”
 
-**Target-project facts:** Spring Boot 3, React, and SQLite; no Vue 3, PostgreSQL, or Redis in scope.
+**目标项目事实：** Spring Boot 3、React、SQLite；范围内没有 Vue 3、PostgreSQL 或 Redis。
 
-**Route:** The requested frontend and data changes do not match the Skill's supported areas/versions. Do not apply these references as defaults.
+**路由：** 请求的前端和数据改动不匹配本 Skill 支持的范围/版本。不要把这些参考当作默认。
 
-**Simulated decision:** Follow the repository's own instructions and frameworks. This Skill is not a migration mandate; if a narrow Spring backend detail remains relevant, use it only if its guidance fits the actual project and version, after verifying the current documentation.
+**推演决策：** 遵循仓库自身的指令和框架。本 Skill 不是迁移指令；若仍有某个窄范围的 Spring 后端细节相关，只有在契合实际项目与版本、并核实了当前文档后才使用。
 
-**Outcome:** Pass. The package does not require migration to the named stack.
+**结论：** 通过。本包不要求迁移到标准栈。
