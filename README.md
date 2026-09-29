@@ -34,16 +34,22 @@ rm -rf /tmp/spring-vue-stack
 ## 新建项目快速开始
 
 1. 安装技能（见上，或 [`integrations/opencode/README.md`](integrations/opencode/README.md)）。
-2. 在目标项目根放置仓库指令：复制 `assets/AGENTS.template.md` 为 `AGENTS.md`，按项目填写命令与模块。
-3. 生成骨架（路径按安装位置二选一）：
+2. **一键初始化整套工程（推荐）**：调用官方生成器生成后端 + 前端并叠加技能资产，同时写入 `.mise.toml`/`AGENTS.md`/`.opencode` 集成。
 
    ```bash
-   # opencode 项目级安装
-   node .opencode/skills/spring-vue-stack/scripts/scaffold.mjs --backend --frontend --agents --target .
-   # 或本仓库检出
-   node skills/spring-vue-stack/scripts/scaffold.mjs --backend --frontend --agents --target .
+   node .opencode/skills/spring-vue-stack/scripts/init.mjs --target . \
+     --backend-name yangxj96-skills-admin --frontend-name yangxj96-skills-ui \
+     --group com.devops00.skills --package com.devops00.skills.demo \
+     --frontend-package yangxj96-skills-ui
+   ```
 
-   # 生成 Flyway 时间戳迁移
+   然后按提示执行 `mvnw` 与 `pnpm install`；需要网络。详见 [`references/scaffolding.md`](skills/spring-vue-stack/references/scaffolding.md)。
+
+3. **或在已有工程叠加单点资产**（可选）：
+
+   ```bash
+   # 路径按安装位置二选一：.opencode/skills/spring-vue-stack/ 或 skills/spring-vue-stack/
+   node .opencode/skills/spring-vue-stack/scripts/scaffold.mjs --backend --frontend --agents --target .
    node .opencode/skills/spring-vue-stack/scripts/scaffold.mjs --migration --name create_xxx --target src/main/resources/db/migration
    ```
 

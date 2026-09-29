@@ -55,8 +55,9 @@ metadata:
 
 ## 资产与脚本
 
-- `assets/backend/`、`assets/frontend/`、`assets/AGENTS.template.md` 是可复制模板；用法见 [scaffolding.md](references/scaffolding.md)。模板为占位，复制后必须改包名/表名/字段。
-- `scripts/scaffold.mjs`：复制模板或生成 Flyway 时间戳迁移文件。
+- `assets/backend/`、`assets/frontend/`、`assets/project/`、`assets/opencode/`、`assets/AGENTS.template.md` 是可复制模板；用法见 [scaffolding.md](references/scaffolding.md)。模板为占位，复制后必须改包名/表名/字段。
+- `scripts/init.mjs`：调用官方生成器（Spring Initializr + create-vite）初始化整套后端+前端工程，并完成 opencode 项目级集成。
+- `scripts/scaffold.mjs`：在已有工程里复制模板或生成 Flyway 时间戳迁移文件。
 - `scripts/validate.mjs`：校验 frontmatter、内链、禁词、大小预算与规则索引。
 
 ## 不适用场景
