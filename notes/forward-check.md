@@ -8,7 +8,7 @@
 
 **目标项目事实：** Java 25、Maven、Spring Boot 4.x、MyBatis-Plus；已有 `InvoiceMapper extends BaseMapper<InvoiceEntity>` 且带同名 XML；服务层使用 `IService`/`ServiceImpl`。
 
-**路由：** 任务涉及后端/API 工作，读取 `SKILL.md`、`standard-stack.md` 和 `references/backend.md`。
+**路由：** 任务涉及后端/API 工作，读取 `SKILL.md`、`standard-stack.md`、`references/backend.md` 和 `references/backend-persistence.md`。
 
 **推演决策：** 应用标准栈：新增 `InvoiceService extends IService<InvoiceEntity>` 与 `InvoiceServiceImpl extends ServiceImpl<InvoiceMapper, InvoiceEntity>`，用 MyBatis-Plus `Page` 实现分页，返回 HTTP 200 与 `{code:200,message:"OK",data:<Page>}`，请求/响应字段使用 `snake_case`。不要另造平行的响应结构。对照项目契约检查授权与现有测试。
 
@@ -94,7 +94,7 @@
 
 **目标项目事实：** 使用 MyBatis-Plus，服务层继承 `IService`/`ServiceImpl`。
 
-**路由：** 涉及持久化实现，读取 `references/backend.md`。
+**路由：** 涉及持久化实现，读取 `references/backend-persistence.md`。
 
 **推演决策：** 分页用 `PaginationInnerInterceptor` + `Page`，不手写分页 SQL；审计字段由 `MetaObjectHandler` 统一填充，不在 Service 手工 `set`；并发更新用 `OptimisticLockerInnerInterceptor` + `@Version`，删除用 `@TableLogic`，并启用防全表更新/删除拦截器。主键用 UUIDv7，不使用 `IdType.ASSIGN_UUID`（UUIDv4）。
 

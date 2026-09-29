@@ -59,6 +59,9 @@
 - SFC 块顺序固定为 `<script>` → `<template>` → `<style>`（由 ESLint `vue/block-order` 强制）；块标签前后换行；格式化交由 Prettier。
 - 统一使用 `<script setup lang="ts">`。`defineProps`、`defineEmits`、`withDefaults`、`defineModel` 写法遵循当前 Vue 版本支持能力，并给出明确类型。
 - Props 声明明确类型；`defineEmits` 使用类型化签名；双向绑定优先 `defineModel`，不要用事件模拟实现。
+- 不直接修改 props：向上用 `emit`/`defineModel`，需要本地衍生时复制为本地状态，保持单向数据流。
+- `v-for` 使用稳定且唯一的 `:key`（如 `id`），不要用数组下标作 key。
+- 谨慎使用 `:deep()` 穿透 scoped 样式，限定在明确父级块内，优先使用组件库主题/变量定制。
 - template 中组件名使用 PascalCase（ESLint 强制）；页面（`src/views/**`）允许单词组件名，非页面组件保持多词。
 - 组件围绕清晰 UI 职责组织；避免超大组件，按职责拆分；可复用的状态行为抽到 Composable。
 - 用 `onErrorCaptured` 或上层错误边界处理子组件异常；不要吞掉错误。
@@ -69,6 +72,8 @@
 - 复用的有状态逻辑放入 Composable，命名 `useXxx`，放在项目既有 composables 目录。
 - Composable 内部注册的监听、定时器、事件、订阅须在 `onScopeDispose`/`onUnmounted` 中清理，避免内存泄漏。
 - 返回响应式对象时注意解构陷阱：用 `toRefs` 或返回 `ref`，不要解构后丢失响应性。
+- `provide/inject` 使用 `Symbol` 作 key 并配套 `InjectionKey<T>` 类型，组合式函数包一层 `useXxx()` 提供默认值。
+- `watch` 精确监听需要的字段，避免对大对象深度监听；派生状态优先用 `computed`；`immediate`/`deep` 按需并评估开销。
 - 不在 Composable 中直接操作 DOM 或发请求绕过请求层；只组合状态与行为。
 
 ## Pinia 状态
@@ -118,6 +123,7 @@
 
 - 标准方案：后端签发 UUID token，前端持有并在请求头 `Authorization: Bearer <uuid>` 携带。token 的存放、刷新与注销流程遵循项目既有实现。
 - 区分 access/refresh（若项目采用）；401 时按项目既有机制刷新或跳登录，刷新失败清理状态并跳登录，避免无限重试。
+- 并发 401 只允许一个刷新在途：其余请求排队，刷新成功后重放，失败则统一跳登录，避免刷新风暴与死循环。见 [pitfalls.md](pitfalls.md)。
 - token 不放普通业务 store 做持久化；按项目约定存放（如专用存储模块）。前端不得记录或打印 token、密码等敏感信息。
 - 退出登录清理 token、用户信息、权限缓存与相关持久化状态。
 - 按钮/元素级权限用项目既有的指令或权限判断工具（如 `v-permission`）；不要仅靠隐藏 UI 实现安全。

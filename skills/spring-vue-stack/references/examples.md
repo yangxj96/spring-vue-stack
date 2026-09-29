@@ -118,7 +118,7 @@ public class OrderQueryFrom {
 }
 ```
 
-模型按职责放入功能包 `javabean` 对应子目录（entity/from/enum…）；转换用 MapStruct，不手工复制字段。实体每个字段显式 `@TableField(value = "...")` 映射列名，主键用 `@TableId(value = "id", type = ...)`，逻辑删除/乐观锁/自动填充分别用 `@TableLogic`/`@Version`/`fill = FieldFill.*`。见 [backend.md](backend.md)。
+模型按职责放入功能包 `javabean` 对应子目录（entity/from/enum…）；转换用 MapStruct，不手工复制字段。实体每个字段显式 `@TableField(value = "...")` 映射列名，主键用 `@TableId(value = "id", type = ...)`，逻辑删除/乐观锁/自动填充分别用 `@TableLogic`/`@Version`/`fill = FieldFill.*`。见 [backend-persistence.md](backend-persistence.md)。
 
 ## 3. Mapper
 
@@ -138,7 +138,7 @@ public interface OrderMapper extends BaseMapper<OrderEntity> {
 </mapper>
 ```
 
-即使暂无自定义语句，也保持接口与 XML 一一对应。见 [backend.md](backend.md) 的 MyBatis-Plus 章节。
+即使暂无自定义语句，也保持接口与 XML 一一对应。见 [backend-persistence.md](backend-persistence.md) 的 MyBatis-Plus 章节。
 
 ## 4. Service：接口写契约，实现不重复注释
 
@@ -481,7 +481,7 @@ export default {
 
 - 主键 UUIDv7、审计/软删除/版本列命名、表列 `COMMENT`（[postgres.md](postgres.md)）。
 - Flyway 时间戳式迁移、已执行迁移不改（[postgres.md](postgres.md)）。
-- MyBatis-Plus `BaseMapper`/`IService`/`ServiceImpl`、实体字段显式 `@TableField(value)`/`@TableId`、`MetaObjectHandler`、`@Version`、`@TableLogic`（[backend.md](backend.md)）。
+- MyBatis-Plus `BaseMapper`/`IService`/`ServiceImpl`、实体字段显式 `@TableField(value)`/`@TableId`、`MetaObjectHandler`、`@Version`、`@TableLogic`（[backend-persistence.md](backend-persistence.md)）。
 - 接口 Javadoc 为契约、impl 不重复注释（[comments.md](comments.md)）。
 - `snake_case`、统一壳、`200`/`201`/`204`、`Page` 分页、ISO-8601 时间（[standard-stack.md](standard-stack.md)）。
 - 前端 `fetch` 请求封装、类型契约同步、BEM、i18n、加载/错误状态（[frontend.md](frontend.md)）。

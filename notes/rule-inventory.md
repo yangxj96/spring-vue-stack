@@ -30,6 +30,8 @@
 | Spectra 专有 | `scripts/check-docs.sh`、Spectra 的 AGENTS 路径、子项目布局、精确的 Maven/pnpm 命令、质量门禁顺序。 | `AGENTS.md`; `docs/前端/08-前端开发测试与构建.md`; `docs/开发指南/01-常见命令.md` | 发现目标项目的等价检查，而非复用命令。 |
 | 标准 | Jackson 序列化契约：`snake_case`、Long/BigInteger 按需字符串化、ISO-8601 时间、`null` 与集合、枚举字符串、BigDecimal。 | 评审新增 | 采纳为跨端数据契约。 |
 | 标准 | 时间语义区分绝对时刻（`Instant`/`OffsetDateTime` + `timestamptz`）与本地语义（`LocalDate`/`LocalTime` + `date`/`time`）；响应带偏移或 UTC，禁止无偏移本地时间；不在转换/序列化中读安全上下文做时区换算。 | 评审新增 | 采纳为时间标准（反模式 + 取舍）。 |
+| 标准 | Spring Boot 4 默认 Jackson 3（`tools.jackson`，`JsonMapper`/`JsonMapperBuilderCustomizer`）。 | 评审新增 | 采纳为序列化实现标准。 |
+| 标准 | 常见坑处理：CSRF 姿态、安全响应头、`@Transactional` 回滚、返回实体双向引用、`@Async`、连接池、日志注入、SSRF/重定向、虚拟线程；前端 `v-for` key/不改 props/`:deep()`/并发 401 刷新；软删除部分唯一索引、外键 `ON DELETE`。 | 评审新增 | 汇总于 `pitfalls.md`，作为交付前检查。 |
 | 标准 | MyBatis-Plus 持久化：实体字段显式 `@TableField(value)`/`@TableId`、`PaginationInnerInterceptor`、`OptimisticLockerInnerInterceptor`、`@TableLogic`、`@Version`、`MetaObjectHandler`、`BlockAttackInnerInterceptor`。 | 评审新增 | 采纳为持久化标准。 |
 | 标准 | 主键 UUIDv7（PostgreSQL 18 `uuidv7()`；不用 UUIDv4 / `ASSIGN_UUID`）。 | 评审新增 | 采纳为主键标准。 |
 | 标准 | Flyway 时间戳式命名 `V{yyyyMMddHHmmss}__{描述}.sql`，已执行迁移不改。 | 评审新增 | 采纳为迁移命名标准。 |
@@ -37,3 +39,22 @@
 | 标准 | 可观测性：traceId/MDC 透传、Actuator 健康/就绪探针。 | 评审新增 | 采纳为运维标准。 |
 | 标准 | API 文档 springdoc-openapi（展示 `snake_case` schema 与 Bearer 方案）。 | 评审新增 | 采纳为文档标准。 |
 | 标准 | 前端 dayjs、前后端类型契约同步、严格 BEM、开发期 mock 不进生产。 | 评审新增 | 采纳为前端标准；代码生成、MSW、Sentry、WebSocket 按需采用。 |
+
+## 规则 → 唯一所属文件（防偏移索引）
+
+每条规范只在一个权威文件详述，其余文件仅作要点或链接。重构或新增规则后按此表校验，避免规则丢失或漂移。
+
+| 规则域 | 权威文件 |
+|---|---|
+| 标准栈、版本、二选一、统一壳、状态码、分页、UUIDv7、Jackson 3、时间语义 | `references/standard-stack.md` |
+| 注释与 Javadoc 标准（L1–L5、impl 不重复） | `references/comments.md` |
+| 后端核心：分层、Java 规范、Lombok/MapStruct、DI、API/校验/异常、序列化、时间/日志/审计、配置、集合并发、测试 | `references/backend.md` |
+| 后端数据访问：事务、Mapper/SQL、MyBatis-Plus 插件与实体注解 | `references/backend-persistence.md` |
+| 后端安全与运行：认证/授权/会话、安全边界、文件传输、可观测性、线程与资源、后台任务 | `references/backend-security-ops.md` |
+| 前端：TS、命名、SFC、Composable、Pinia、路由权限、请求层、认证、表单、样式/BEM、i18n、构建、交互、性能、依赖、测试 | `references/frontend.md` |
+| ESLint / Prettier / Stylelint 配置 | `references/frontend-lint.md` |
+| PostgreSQL：建模、约束、时间选型、索引命名、Flyway 迁移 | `references/postgres.md` |
+| Redis：缓存/会话/安全状态/并发与故障 | `references/redis.md` |
+| 交付核对与 Definition of Done | `references/docs-and-delivery.md` |
+| 常见坑索引 | `references/pitfalls.md` |
+| 端到端示例 | `references/examples.md` |

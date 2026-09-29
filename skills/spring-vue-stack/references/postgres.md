@@ -10,6 +10,8 @@
 - 审计与软删除列统一命名并对应 MyBatis-Plus 机制：`created_at`、`created_by`、`updated_at`、`updated_by`（`timestamptz`/`text`），软删除用 `deleted boolean NOT NULL DEFAULT false`，乐观锁用 `version bigint NOT NULL DEFAULT 0`（或项目既有语义）。
 - 枚举存储默认用 `varchar` 保存枚举名或约定码，配合应用枚举（可按需加 `CHECK` 约束）；除非确有需要，不使用 PostgreSQL 原生 enum 类型，以免扩值与迁移成本高。
 - 索引与约束命名保持一致：普通索引 `idx_{table}_{cols}`、唯一索引 `uk_{table}_{cols}`、外键 `fk_{table}_{ref}`。
+- 软删除表的唯一约束使用**部分唯一索引**，只约束未删除行：`CREATE UNIQUE INDEX uk_x ON t (k) WHERE deleted = false;`，否则删除后业务键无法复用。见 [pitfalls.md](pitfalls.md)。
+- 外键显式声明 `ON DELETE` 行为（`RESTRICT`/`CASCADE`/`SET NULL`）；软删除场景通常用 `RESTRICT` 并在应用层处理，避免误级联或孤儿数据。
 - 每张表和每一列都添加注释：在迁移中使用 `COMMENT ON TABLE` / `COMMENT ON COLUMN`，用中文写业务含义、单位、封闭取值以及可空/默认语义，而不是重复列名；修改列含义时同步更新注释。注释标准见 [comments.md](comments.md)。
 - 让数据约束表达稳定的不变量：根据语义考虑 `NOT NULL`、`UNIQUE`、`CHECK`、外键以及默认值。若约束有意放在应用层，说明一致性边界。
 - 选择与数据语义相符的类型、精度、时区和空值策略。评估 JSON/JSONB 是否保留了确有价值的灵活性，避免把有稳定关系的字段无理由藏入文档列。

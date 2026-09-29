@@ -11,6 +11,7 @@
 | JDK | Java 25 |
 | 构建 | Maven |
 | 框架 | Spring Boot 4.x |
+| JSON | Jackson 3（Spring Boot 4 默认，包名 `tools.jackson`） |
 | 数据访问 | MyBatis-Plus |
 | 数据库迁移 | Flyway |
 | 数据库 | PostgreSQL |
@@ -89,7 +90,7 @@
 
 ### 序列化与数据契约
 
-统一通过全局 Jackson 配置完成，不在单个 DTO/VO 上重复配置：
+统一通过全局 Jackson 3（Spring Boot 4 默认，包名 `tools.jackson`，核心类型 `JsonMapper`、定制器 `JsonMapperBuilderCustomizer`）配置完成，不在单个 DTO/VO 上重复配置：
 
 - **字段命名**：`snake_case`（见上）。
 - **主键 / ID**：主键为 UUIDv7 字符串；任何 `Long`/`BigInteger` 超过 JS 安全整数（2^53-1）时必须序列化为字符串，前端按字符串处理。
@@ -127,8 +128,9 @@
 
 ## 与本 Skill 其它参考的关系
 
-- API 层的落地细节见 [backend.md](backend.md) 与 [frontend.md](frontend.md)。
+- API 层的落地细节见 [backend.md](backend.md) 与 [frontend.md](frontend.md)；数据访问见 [backend-persistence.md](backend-persistence.md)，安全与运行见 [backend-security-ops.md](backend-security-ops.md)。
 - 契约先行的完整纵向示例见 [examples.md](examples.md)。
+- 常见坑清单（Boot 4/Jackson 3、CSRF、事务、软删除唯一索引等）见 [pitfalls.md](pitfalls.md)。
 - token、会话与缓存的状态语义见 [redis.md](redis.md)。
 - 数据库迁移、类型与索引见 [postgres.md](postgres.md)。
 - 交付核对见 [docs-and-delivery.md](docs-and-delivery.md)。
