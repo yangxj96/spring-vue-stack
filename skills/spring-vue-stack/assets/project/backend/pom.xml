@@ -12,9 +12,9 @@
     </parent>
 
     <groupId>__GROUP__</groupId>
-    <artifactId>__BACKEND_NAME__</artifactId>
+    <artifactId>__BACKEND_ARTIFACT__</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>__BACKEND_NAME__</name>
+    <name>__BACKEND_ARTIFACT__</name>
     <description>Spring Boot 4 + MyBatis-Plus + PostgreSQL + Redis</description>
 
     <properties>

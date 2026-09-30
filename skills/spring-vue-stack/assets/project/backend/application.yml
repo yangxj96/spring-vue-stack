@@ -1,6 +1,6 @@
 spring:
   application:
-    name: __BACKEND_NAME__
+    name: __BACKEND_ARTIFACT__
   datasource:
     url: jdbc:postgresql://localhost:5432/demo
     username: demo

@@ -23,8 +23,11 @@
 `scripts/scaffold.mjs`（Node，跨平台）：
 
 ```bash
-# 复制后端模板到目标项目
+# 复制后端模板到目标项目（平铺）
 node scripts/scaffold.mjs --backend --target ../my-app/src/main/java/com/acme/app
+
+# 复制后端模板并按包名落位（推荐：自动放入 src/main/java/<包路径> 与 resources/mapper/order）
+node scripts/scaffold.mjs --backend --package com.acme.app --target ../my-app
 
 # 复制前端模板
 node scripts/scaffold.mjs --frontend --target ../my-app-ui/src
@@ -41,11 +44,13 @@ node scripts/scaffold.mjs --agents --target ../my-app
 
 ## 初始化整套项目（init.mjs）
 
-`scripts/init.mjs` 调用官方生成器并叠加本技能资产，生成后端 + 前端 + 仓库级配置，并完成 opencode 项目级集成。**只写文件，不安装依赖、不构建、不初始化 git**；已存在文件跳过。
+`scripts/init.mjs` 调用官方生成器并叠加本技能资产，生成后端 + 前端 + 仓库级配置，并完成 opencode 项目级集成。**只写文件，不安装依赖、不构建、不初始化 git**。
+
+覆盖策略：标准 `pom.xml`/`application.yml`、前端 `package.json`/`vite.config.ts`/`tsconfig*`（并重建 `src`）会**覆盖**；资产叠加与仓库级文件（`.mise.toml`/`.gitignore`/`README.md`/`AGENTS.md`）对已存在文件**跳过**。不要在有手写内容的目录直接 init。
 
 ```bash
 node scripts/init.mjs --target <仓库根> \
-  --backend-name yangxj96-skills-admin \
+  --backend-dir yangxj96-skills-admin \
   --frontend-name yangxj96-skills-ui \
   --group com.devops00.skills \
   --package com.devops00.skills.demo \

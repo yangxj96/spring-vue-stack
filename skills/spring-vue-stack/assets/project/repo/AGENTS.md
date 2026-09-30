@@ -2,16 +2,24 @@
 
 ## 项目概览
 
-- 后端：`__BACKEND_NAME__`（Spring Boot 4 · Java 25 · Maven · MyBatis-Plus · Flyway · PostgreSQL · Redis）。
+<!-- IF_BACKEND -->
+- 后端：`__BACKEND_DIR__`（Spring Boot 4 · Java 25 · Maven · MyBatis-Plus · Flyway · PostgreSQL · Redis）。
+<!-- /IF_BACKEND -->
+<!-- IF_FRONTEND -->
 - 前端：`__FRONTEND_NAME__`（Vue 3 · TypeScript · Vite · Pinia · Element Plus · SCSS · vue-i18n）。
+<!-- /IF_FRONTEND -->
 - 遵循 `spring-vue-stack` 技能的标准栈；仓库若有显式不同方案，以本文件为准并说明差异。
 
 ## 常用命令
 
-- 后端构建/测试：`cd __BACKEND_NAME__ && ./mvnw verify`
-- 后端运行：`cd __BACKEND_NAME__ && ./mvnw spring-boot:run`
+<!-- IF_BACKEND -->
+- 后端构建/测试：`cd __BACKEND_DIR__ && ./mvnw verify`
+- 后端运行：`cd __BACKEND_DIR__ && ./mvnw spring-boot:run`
+- 数据库迁移：置于 `__BACKEND_DIR__/src/main/resources/db/migration`（Flyway 时间戳式命名）。
+<!-- /IF_BACKEND -->
+<!-- IF_FRONTEND -->
 - 前端安装/开发/构建/测试：`cd __FRONTEND_NAME__ && pnpm install` / `pnpm dev` / `pnpm build` / `pnpm test`
-- 数据库迁移：置于 `__BACKEND_NAME__/src/main/resources/db/migration`（Flyway 时间戳式命名）。
+<!-- /IF_FRONTEND -->
 
 ## 约定
 

@@ -22,8 +22,8 @@
 
 | 组件 | 参考基线 | 注意 |
 |---|---|---|
-| Node | 22 LTS / 24 LTS | 与 `engines` 一致 |
-| pnpm | 10.x | 锁文件与 `packageManager` 字段锁定 |
+| Node | 24 LTS（模板 mise 固定 24.14.0） | 脚本 `engines` 声明 `>=18` |
+| pnpm | 12.x | 锁文件与 `packageManager` 字段锁定 |
 | Vue | 3.5.x | `defineModel` 等写法依赖次版本 |
 | Vite | 7.x | 与 Node 版本匹配 |
 | Pinia | 3.x | setup store 写法 |
