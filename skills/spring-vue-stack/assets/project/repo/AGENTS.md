@@ -25,4 +25,7 @@
 
 - API：`snake_case`、统一壳 `{code,message,data}`、`code` 随 HTTP 状态、主键 UUIDv7。
 - 注释：中文，L1/L2 必须，实现类不重复接口 Javadoc，数据库表与所有列必须 `COMMENT`。
+<!-- IF_FRONTEND -->
+- 前端目录：页面按 Page Module 组织（`src/views/<Page>/index.vue` + 页面私有组件就近放 `components/`）；整体布局放 `src/layouts/`；跨页共享组件放 `src/components/`；第三方框架配置与 HTTP 客户端放 `src/plugins/`（i18n/router/stores/element-plus/request）。
+<!-- /IF_FRONTEND -->
 - 提交规范与分支策略：<按团队填写>。

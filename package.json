@@ -1,6 +1,6 @@
 {
   "name": "@yangxj96/spring-vue-stack",
-  "version": "1.2.2",
+  "version": "1.3.0",
   "description": "Portable Agent Skills package and scaffolder for Spring Boot 4 + Vue 3 projects.",
   "type": "module",
   "license": "MIT",

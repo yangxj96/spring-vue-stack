@@ -6,7 +6,6 @@ import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { writeNew, timestampUtc } from "./lib/fs-utils.mjs";
 import { overlayBackendAssets } from "./lib/backend.mjs";
-import { overlayFrontendAssets } from "./lib/frontend.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const skillRoot = resolve(here, "..");
@@ -36,10 +35,6 @@ if (anyFlag("backend")) {
     overlayBackendAssets({ target, packageName: args.options.package });
 }
 
-if (anyFlag("frontend")) {
-    overlayFrontendAssets({ target });
-}
-
 if (anyFlag("agents")) {
     writeNew(join(target, "AGENTS.md"), readFileSync(join(assets, "AGENTS.template.md")), console.log);
 }
@@ -50,9 +45,9 @@ if (anyFlag("migration")) {
     writeNew(file, readFileSync(join(assets, "backend", "migration-template.sql")), console.log);
 }
 
-const used = ["backend", "frontend", "agents", "migration"].filter(n => args.flags.has(n));
+const used = ["backend", "agents", "migration"].filter(n => args.flags.has(n));
 if (used.length === 0) {
-    console.log("用法: scaffold.mjs [--backend [--package <包名>]] [--frontend] [--agents] [--migration --name <描述>] [--target <目录>]");
+    console.log("用法: scaffold.mjs [--backend [--package <包名>]] [--agents] [--migration --name <描述>] [--target <目录>]");
     process.exit(1);
 }
 console.log("\n完成。模板为占位，请按目标项目改包名/表名/字段并复核契约。");

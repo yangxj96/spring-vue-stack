@@ -24,7 +24,7 @@ npm i -g @yangxj96/spring-vue-stack     # 或全局安装后直接用 spring-vue
 ```bash
 spring-vue-stack skill  --client opencode --scope project --commands --target .
 spring-vue-stack init   --target . --package com.acme.demo --frontend-name acme-ui
-spring-vue-stack scaffold --backend --frontend --agents --target .
+spring-vue-stack scaffold --backend --agents --target .
 spring-vue-stack validate
 ```
 
@@ -83,7 +83,7 @@ rm -rf /tmp/spring-vue-stack
 
    ```bash
    # 路径按安装位置二选一：.opencode/skills/spring-vue-stack/ 或 skills/spring-vue-stack/
-   node .opencode/skills/spring-vue-stack/scripts/scaffold.mjs --backend --frontend --agents --target .
+   node .opencode/skills/spring-vue-stack/scripts/scaffold.mjs --backend --agents --target .
    node .opencode/skills/spring-vue-stack/scripts/scaffold.mjs --migration --name create_xxx --target src/main/resources/db/migration
    ```
 
@@ -105,7 +105,7 @@ Agent Skills 目录格式本身不会主动拉取更新。
 
 ## 适用范围
 
-- 后端指导：Spring Boot 4.x、Java 25、Maven、MyBatis-Plus（UUIDv7 主键）、Flyway、springdoc，以及 Spring Security/Sa-Token 的服务/API 开发。
+- 后端指导：Spring Boot 4.x、Java 25、Maven、MyBatis-Plus（UUIDv7 主键）、Flyway，以及 Spring Security/Sa-Token 的服务/API 开发。
 - 前端指导：Vue 3、TypeScript、Vite、Pinia、Vue Router、Element Plus、SCSS（BEM）、vue-i18n、pnpm 的界面开发。
 - 数据指导：PostgreSQL 表结构、查询，以及 Flyway 迁移。
 - 状态指导：Redis 缓存、UUID token 会话、安全状态与协调行为。
@@ -128,7 +128,7 @@ Agent Skills 目录格式本身不会主动拉取更新。
 ## 资产与脚手架
 
 - `assets/` 提供可复制模板：后端 `R`/异常/MyBatis-Plus 配置/实体/迁移、前端 fetch/XHR 请求层与 lint 配置、`AGENTS.md` 模板。
-- `node skills/spring-vue-stack/scripts/scaffold.mjs --backend --frontend --agents --target <目录>` 复制模板；`--backend --package <包名>` 按包名落位（否则平铺到 `--target`）；`--migration --name <描述>` 生成 Flyway 时间戳迁移。
+- `node skills/spring-vue-stack/scripts/scaffold.mjs --backend --agents --target <目录>` 复制后端资产与 AGENTS 模板；`--backend --package <包名>` 按包名落位（否则平铺到 `--target`）；`--migration --name <描述>` 生成 Flyway 时间戳迁移。
 - 用法与约束见 [`references/scaffolding.md`](skills/spring-vue-stack/references/scaffolding.md)。模板为占位，复制后必须改包名/表名/字段。
 
 ## 校验

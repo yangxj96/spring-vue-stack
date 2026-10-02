@@ -5,14 +5,13 @@
 ## 资产清单
 
 - `assets/backend/`：`R`、`BizError`/`BizException`、`GlobalExceptionHandler`、`MybatisPlusConfig`、`AuditMetaObjectHandler`、`SnakeCaseWebConfig`、`Jackson3Config`、`Entity`/`From`/`VO`/`Mapper`+XML/`Service`+`ServiceImpl`/`Controller`/`Converter`、`migration-template.sql`。这些模板构成一个**最小可用功能骨架**（订单示例），相互引用可直接编译；复制后按实际业务改名/字段。
-- `assets/frontend/`：`request.ts`（fetch）、`upload.ts`（XHR）、`api-error.ts`、`page-result.ts`、`eslint.config.ts`、`.prettierrc.yml`、`.prettierignore`、`stylelint.config.mjs`、`date.ts`、`use-list.ts`、`store.ts`、`route-meta.ts`。
-- `assets/project/`：整套项目模板（后端 `pom.xml`/`application.yml`、前端 `package.json`/`vite.config.ts`/`tsconfig*`/`src` 基础文件、仓库级 `.mise.toml`/`.gitignore`/`README.md`/`AGENTS.md`）；由 `init.mjs` 使用。
+- `assets/project/`：整套项目模板（后端 `pom.xml`/`application.yml`、前端 `package.json`/`vite.config.ts`/`tsconfig*`/完整 `src`（含 `plugins/request`、`plugins/stores`、`api`、`composables`、`types`、`utils`）与根级 `eslint.config.ts`/`.prettierrc.yml`/`.prettierignore`/`stylelint.config.mjs`、仓库级 `.mise.toml`/`.gitignore`/`README.md`/`AGENTS.md`）；由 `init.mjs` 使用，前端为**自包含整体拷贝**。
 - `assets/opencode/commands/`：opencode 命令模板。
 - `assets/AGENTS.template.md`：目标仓库指令模板。
 
 ## 手动使用
 
-1. 选定范围（后端/前端/数据库/AGENTS）。
+1. 选定范围（后端/数据库/AGENTS）。
 2. 复制对应文件到目标项目**既有目录结构**中，不要另起平行目录。
 3. 替换占位：包名 `com.example.app`、业务域 `order`、表名 `biz_order`、字段与注释；**`.java` 文件名必须与 public 类名一致**（如 `Entity.java` → `OrderEntity.java`、`ServiceImpl.java` → `OrderServiceImpl.java`），否则无法编译。
 4. 按 [standard-stack.md](standard-stack.md) 与对应 reference 复核契约（`snake_case`、`R<T>`、UUIDv7、Jackson 3、BEM 等）。
@@ -28,9 +27,6 @@ node scripts/scaffold.mjs --backend --target ../my-app/src/main/java/com/acme/ap
 
 # 复制后端模板并按包名落位（推荐：自动放入 src/main/java/<包路径> 与 resources/mapper/order）
 node scripts/scaffold.mjs --backend --package com.acme.app --target ../my-app
-
-# 复制前端模板
-node scripts/scaffold.mjs --frontend --target ../my-app-ui/src
 
 # 生成 Flyway 迁移文件（UTC 时间戳命名）
 node scripts/scaffold.mjs --migration --target ../my-app/src/main/resources/db/migration --name create_biz_order
@@ -57,8 +53,8 @@ node scripts/init.mjs --target <仓库根> \
   --frontend-package yangxj96-skills-ui
 ```
 
-- **后端**：Spring Initializr 生成（Java 25；web/validation/redis/security/postgresql/flyway/actuator/lombok），再用标准 `pom.xml` 覆盖（加入 MyBatis-Plus、MapStruct、springdoc）并叠加后端资产（按 `package` 声明落位，表列映射 XML 放 `resources/mapper/order`）。
-- **前端**：`pnpm create vite --template vue-ts`，再用标准 `package.json`/`vite.config.ts`/`tsconfig*`/`src` 覆盖，并叠加前端资产到 `src/api`、`src/utils`、`src/composables`、`src/stores`、`src/types` 与项目根。
+- **后端**：Spring Initializr 生成（Java 25；web/validation/redis/security/postgresql/flyway/actuator/lombok），再用标准 `pom.xml` 覆盖（加入 MyBatis-Plus、MapStruct）并叠加后端资产（按 `package` 声明落位，表列映射 XML 放 `resources/mapper/order`）。
+- **前端**：`pnpm create vite --template vue-ts`，再用标准项目模板**整体覆盖** `src` 与根配置（模板自包含：Page Module 页面（`views/<Page>/index.vue` + 就近 `components/`）、`src/layouts`（Default 布局）、`src/plugins`（i18n/router/stores/element-plus/request，其中 request 为 fetch + XHR 统一出口）、`src/api`、`src/composables`、`src/types`、`src/utils`，以及 ESLint/Prettier/Stylelint 配置）；含登录页、整体布局、「工作台/示例/系统」演示导航与表格、表单示例页。
 - **仓库级**：写入 `.mise.toml`、`.gitignore`、`README.md`、`AGENTS.md`。
 - **opencode**：复制技能到 `.opencode/skills/spring-vue-stack/`，命令模板到 `.opencode/commands/`。
 - 需要网络；生成后按提示执行 `mvnw` 与 `pnpm install`。版本敏感坐标以 [version-baseline.md](version-baseline.md) 核对。
@@ -69,4 +65,4 @@ node scripts/init.mjs --target <仓库根> \
 
 - 资产中的包名、表名、字段仅为占位；直接使用会导致错误命名。
 - 资产遵循当前标准栈；目标项目若显式使用不同方案，以项目为准并同步调整模板。
-- 版本敏感的 API（Jackson 3、MyBatis-Plus、springdoc）以 [version-baseline.md](version-baseline.md) 与官方文档核对。
+- 版本敏感的 API（Jackson 3、MyBatis-Plus）以 [version-baseline.md](version-baseline.md) 与官方文档核对。

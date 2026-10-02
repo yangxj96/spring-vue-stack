@@ -4,7 +4,7 @@ description: Use when changing Spring Boot 4.x backend code, Vue 3.x frontend, P
 license: MIT
 compatibility: 脚本需 Node.js 18+；适用于遵循 Agent Skills 规范、从本地目录发现技能的客户端。
 metadata:
-  version: "1.2.2"
+  version: "1.3.0"
 ---
 
 # Spring + Vue 技术栈开发指南
@@ -13,8 +13,8 @@ metadata:
 
 ## 标准栈
 
-- **后端**：Java 25 · Maven · Spring Boot 4.x · MyBatis-Plus（UUIDv7 主键）· Flyway · PostgreSQL · Redis · Spring Security + Redis 存 UUID token（新项目可选 Sa-Token，二选一）· Lombok + MapStruct · springdoc-openapi · Jackson 3。
-- **前端**：Vue 3 + TypeScript · Vite · Pinia · Vue Router · Element Plus（完整引入）· SCSS + 严格 BEM · vue-i18n · pnpm · `fetch` 普通请求封装 + 原生 `XHR` 上传封装 · ESLint + Prettier + Stylelint · Vitest + Vue Test Utils · Playwright。
+- **后端**：Java 25 · Maven · Spring Boot 4.x · MyBatis-Plus（UUIDv7 主键）· Flyway · PostgreSQL · Redis · Spring Security + Redis 存 UUID token（新项目可选 Sa-Token，二选一）· Lombok + MapStruct · Jackson 3。
+- **前端**：Vue 3 + TypeScript · Vite · Pinia · Vue Router · Element Plus（完整引入）· SCSS + 严格 BEM · vue-i18n · pnpm · `fetch` 普通请求封装 + 原生 `XHR` 上传封装 · ESLint + Prettier + Stylelint · Vitest + Vue Test Utils · Playwright。目录采用 Page Module（`views/<Page>/index.vue` + 就近私有组件）、`src/layouts`（整体布局）与 `src/plugins`（i18n/router/stores/element-plus/request 等）；含登录页与整体布局。
 - **契约**：JSON/查询参数 `snake_case`；统一壳 `{code,message,data}`，`code` 恒等于 HTTP 状态；分页用 MyBatis-Plus `Page`；主键 UUIDv7，长整型按需字符串化。
 
 完整清单、状态码表和二选一规则见 [standard-stack.md](references/standard-stack.md)。
@@ -55,9 +55,9 @@ metadata:
 
 ## 资产与脚本
 
-- `assets/backend/`、`assets/frontend/`、`assets/project/`、`assets/opencode/`、`assets/AGENTS.template.md` 是可复制模板；用法见 [scaffolding.md](references/scaffolding.md)。模板为占位，复制后必须改包名/表名/字段。
+- `assets/backend/`、`assets/project/`、`assets/opencode/`、`assets/AGENTS.template.md` 是可复制模板；用法见 [scaffolding.md](references/scaffolding.md)。模板为占位，复制后必须改包名/表名/字段。
 - `scripts/init.mjs`：调用官方生成器（Spring Initializr + create-vite）初始化整套后端+前端工程，并完成 opencode 项目级集成。
-- `scripts/scaffold.mjs`：在已有工程里复制模板或生成 Flyway 时间戳迁移文件。
+- `scripts/scaffold.mjs`：在已有工程里复制后端资产、AGENTS 模板或生成 Flyway 时间戳迁移文件。
 - `scripts/validate.mjs`：校验 frontmatter、内链、禁词、大小预算与规则索引。
 
 ## 不适用场景

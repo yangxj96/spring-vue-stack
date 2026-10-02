@@ -4,7 +4,7 @@ import { join, resolve } from "node:path";
 import { skillRoot } from "./paths.mjs";
 import { CLIENTS } from "../../skills/spring-vue-stack/scripts/lib/clients.mjs";
 import { initBackend, overlayBackendAssets } from "../../skills/spring-vue-stack/scripts/lib/backend.mjs";
-import { initFrontend, overlayFrontendAssets } from "../../skills/spring-vue-stack/scripts/lib/frontend.mjs";
+import { initFrontend } from "../../skills/spring-vue-stack/scripts/lib/frontend.mjs";
 import { initRepoFiles } from "../../skills/spring-vue-stack/scripts/lib/repo.mjs";
 import { installSkill } from "../../skills/spring-vue-stack/scripts/lib/skill.mjs";
 import { DEFAULTS } from "./commands.mjs";
@@ -77,23 +77,9 @@ async function askBackend() {
 }
 
 async function askFrontend() {
-    const mode = guard(await p.select({
-        message: "前端：安装方式（新建=create-vite 生成整套工程；叠加=复制资产到已有工程；默认 新建）",
-        options: [
-            { value: "new", label: "新建整套工程", hint: "create-vite + 标准配置" },
-            { value: "overlay", label: "叠加到已有工程", hint: "复制前端资产模板" }
-        ],
-        initialValue: "new"
-    }));
-
-    if (mode === "new") {
-        const frontendName = String(guard(await p.text({ message: `前端目录名（Vite 项目文件夹名；默认 ${DEFAULTS.frontendName}）`, defaultValue: DEFAULTS.frontendName })) || DEFAULTS.frontendName);
-        const frontendPackage = String(guard(await p.text({ message: `前端包名（package.json 的 name；默认 与前端目录名相同 = ${frontendName}）`, defaultValue: frontendName })) || frontendName);
-        return { mode, frontendName, frontendPackage };
-    }
-
-    const target = resolve(String(guard(await p.text({ message: `前端 src 目录（默认 ${join(process.cwd(), "src")}）`, defaultValue: join(process.cwd(), "src") })) || join(process.cwd(), "src")));
-    return { mode, target };
+    const frontendName = String(guard(await p.text({ message: `前端目录名（Vite 项目文件夹名；默认 ${DEFAULTS.frontendName}）`, defaultValue: DEFAULTS.frontendName })) || DEFAULTS.frontendName);
+    const frontendPackage = String(guard(await p.text({ message: `前端包名（package.json 的 name；默认 与前端目录名相同 = ${frontendName}）`, defaultValue: frontendName })) || frontendName);
+    return { mode: "new", frontendName, frontendPackage };
 }
 
 function summarize(plan) {
@@ -107,9 +93,7 @@ function summarize(plan) {
             : `后端：叠加资产 → ${plan.backend.target}`);
     }
     if (plan.frontend) {
-        lines.push(plan.frontend.mode === "new"
-            ? `前端：新建 ${plan.frontend.frontendName} → ${plan.frontend.target}`
-            : `前端：叠加资产 → ${plan.frontend.target}`);
+        lines.push(`前端：新建 ${plan.frontend.frontendName} → ${plan.frontend.target}`);
     }
     return lines;
 }
@@ -182,9 +166,6 @@ export async function runWizard() {
             frontendPackage: plan.frontend.frontendPackage
         });
         createdProject = true;
-    } else if (plan.frontend?.mode === "overlay") {
-        p.log.step("叠加前端资产…");
-        overlayFrontendAssets({ target: plan.frontend.target });
     }
 
     if (createdProject) {

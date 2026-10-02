@@ -2,6 +2,35 @@
 
 遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/) 与语义化版本。
 
+## [1.3.0] - 2026-10-02
+
+### Added
+- 前端模板采用 **Page Module**：`src/views/<Page>/index.vue` 为页面入口组件，页面私有组件遵循 Colocation 就近放 `src/views/<Page>/components/`（示例：`views/Examples/Table/components/TableSearch.vue`）。
+- 前端新增第三方配置目录 `src/plugins/`，收纳 `i18n`、`router`、`stores`、`element-plus.ts` 与 HTTP 客户端 `request/`；新增 `src/components/README.md` 说明全局共享组件用途。
+- 新增登录页 `src/views/Login/index.vue`（参考 spectra-ui，Mock 登录）与整体布局 `src/layouts/Default/`：顶栏（品牌图标+名称、横向导航、最右头像）、左侧导航、内容区，基于 flex 自适应窗口、默认无页脚（分隔线由整条 header 底线提供）。
+- 内置演示导航「工作台/示例/系统」（各 2 个子页，菜单项图标取自 `@element-plus/icons-vue`）与 `components/PagePlaceholder.vue`：表格页含搜索区（`views/Examples/Table/components/TableSearch.vue`，不用卡片包裹）与底部右对齐分页，表单页为页面级容器；移除内容区重复的页面标题，便于快速查看与替换。
+- HTTP 客户端迁移到 `src/plugins/request/`（导出 `request` 与 `upload`，含 `ApiError`、`token` 存取）；新增认证 store `plugins/stores/auth.ts` 与路由登录守卫；前端依赖新增 `@element-plus/icons-vue`。
+- `init` 生成订单示例的初始 Flyway 迁移 `src/main/resources/db/migration/V<yyyyMMddHHmmss>__create_biz_order.sql`。
+
+### Fixed
+- 前端整体布局：横向菜单与 header 底线重叠导致分隔线看似缺失，改为 `align-items` 默认拉伸 + 菜单 `height: 100%`，保证整条 header 底线可见。
+- 内容区加入面包屑后出现整体滚动条：改为 main 纵向 flex（面包屑固定、页面容器 `flex: 1; min-height: 0`），列表页改为「搜索 / 表格 / 分页」三段 flex 布局（表格区占满并内部滚动、分页固定底部）。
+- Element Plus 组件语言跟随 vue-i18n：根组件用 `ElConfigProvider`，`plugins/element-plus` 提供 `useElementPlusLocale`，分页等内置文案不再固定英文。
+- 前端 `tsconfig.app.json` 移除已弃用的 `baseUrl`（`paths` 自 TS 4.1 起相对 tsconfig 解析），消除 TypeScript 6/7 的弃用警告。
+- 后端模板 MyBatis-Plus 改用 `mybatis-plus-spring-boot4-starter`（3.5.15）：此前 `mybatis-plus-spring-boot3-starter` 的自动配置引用 Boot 3 包路径，导致 Mapper 未注册、应用启动失败。
+- 后端模板 Flyway 改用 `spring-boot-starter-flyway`（Boot 4 将 Flyway 自动配置拆到 `spring-boot-flyway`），确保启动时自动执行迁移；保留 `flyway-database-postgresql`。
+- 移除 `springdoc-openapi-starter-webmvc-ui`（Boot 3 版本）及其 `springdoc` 配置项。
+- 后端资产 Mapper XML 由 `Mapper.xml` 更正为 `OrderMapper.xml`；`init` 删除 Initializr 生成的重复 `application.properties`。
+
+### Changed
+- 前端 `main.ts` 只负责创建应用并按插件注册，Element Plus 注册移入 `plugins/element-plus.ts`。
+- 布局：侧边栏宽度抽为 `--app-sidebar-width`，顶栏品牌区与其等宽（含内边距），使顶栏导航起始位置与侧栏右边界对齐；内容区顶部新增可点击面包屑（`layouts/Default/components/AppBreadcrumb.vue`，模块 / 当前页）。
+- 页面模块目录统一为 PascalCase（`views/Home`、`views/Login`）；请求层从 `src/api/request.ts` 调整为 `src/plugins/request`。
+- 请求层重构为统一出口：`src/plugins/request/index.ts` 导出 `request`（fetch 普通请求 + `request.upload` XHR 上传）与具名 `upload`/`ApiError` 及类型；地址构建、认证头、统一壳校验、错误归一化抽到 `shared.ts` 供 fetch/xhr 共用（新增 `fetch.ts`、`xhr.ts`，`upload.ts` 资产落位为 `xhr.ts`）。
+- 文档同步 Page Module、`src/plugins`、登录页与整体布局、MyBatis-Plus Boot 4 starter 与移除 springdoc：`frontend.md`、`frontend-patterns.md`、`scaffolding.md`、`examples.md`、`standard-stack.md`、`version-baseline.md`、`SKILL.md`；仓库 `AGENTS.md` 模板新增前端目录约定。
+- 前端模板自包含：把原 `assets/frontend/` 的 `request`/`stores`/`api`/`composables`/`types`/`utils` 与根级 ESLint/Prettier/Stylelint 配置移入 `assets/project/frontend`，`init` 的前端改为整体拷贝（不再 `put` 装配）；移除 `assets/frontend/` 与 `scaffold --frontend`（交互向导前端只保留「新建整套工程」）；`scaffold --backend/--agents/--migration` 与 `init --backend/--frontend` 行为不变。
+- 端到端测试补充前端目录结构（plugins / Page Module / 布局与登录）与后端 pom、`application.properties` 清理、初始迁移断言。
+
 ## [1.2.1] - 2026-09-30
 
 ### Fixed

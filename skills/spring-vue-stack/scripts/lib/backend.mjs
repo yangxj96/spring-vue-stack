@@ -4,7 +4,7 @@ import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
-import { ensureDir, writeNew, writeOverwrite, copyDir } from "./fs-utils.mjs";
+import { ensureDir, writeNew, writeOverwrite, copyDir, timestampUtc } from "./fs-utils.mjs";
 import { buildPlaceholderMap, applyPlaceholders } from "./placeholders.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -108,6 +108,23 @@ export async function initBackend({
     writeOverwrite(join(dir, "src", "main", "resources", "application.yml"),
         applyPlaceholders(readFileSync(join(assets, "project", "backend", "application.yml"), "utf8"), map), log);
 
+    // Initializr 默认生成 application.properties，会导致与 application.yml 重复；只保留 yml。
+    const propertiesFile = join(dir, "src", "main", "resources", "application.properties");
+    if (existsSync(propertiesFile)) {
+        rmSync(propertiesFile, { force: true });
+        log(`删除（与 application.yml 重复）: ${propertiesFile}`);
+    }
+
     overlayBackendAssets({ target: dir, packageName, log });
+
+    // 生成订单示例的初始迁移，保证 Flyway 启动即可建表。
+    const migrationDir = join(dir, "src", "main", "resources", "db", "migration");
+    const hasOrderMigration = existsSync(migrationDir)
+        && readdirSync(migrationDir).some(f => f.endsWith("__create_biz_order.sql"));
+    if (!hasOrderMigration) {
+        writeNew(join(migrationDir, `V${timestampUtc()}__create_biz_order.sql`),
+            readFileSync(join(assets, "backend", "migration-template.sql")), log);
+    }
+
     return resolvedBoot;
 }

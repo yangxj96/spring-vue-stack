@@ -19,9 +19,8 @@
 
     <properties>
         <java.version>25</java.version>
-        <mybatis-plus.version>3.5.9</mybatis-plus.version>
+        <mybatis-plus.version>3.5.15</mybatis-plus.version>
         <mapstruct.version>1.6.3</mapstruct.version>
-        <springdoc.version>2.8.0</springdoc.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
     </properties>
 
@@ -47,10 +46,10 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-        <!-- MyBatis-Plus：starter 坐标与版本按 Spring Boot 4 兼容性核对 -->
+        <!-- MyBatis-Plus：Boot 4 必须使用 boot4 starter，boot3 starter 的自动配置引用了已迁移的包路径 -->
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <artifactId>mybatis-plus-spring-boot4-starter</artifactId>
             <version>${mybatis-plus.version}</version>
         </dependency>
         <!-- 3.5.9+ 分页/防全表等拦截器迁移到 jsqlparser 模块 -->
@@ -60,9 +59,10 @@
             <version>${mybatis-plus.version}</version>
         </dependency>
 
+        <!-- Boot 4 将 Flyway 自动配置拆到 spring-boot-flyway，需 starter 才会在启动时自动执行迁移 -->
         <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-flyway</artifactId>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
@@ -78,11 +78,6 @@
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
             <version>${mapstruct.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>${springdoc.version}</version>
         </dependency>
 
         <dependency>

@@ -11,6 +11,7 @@
 | 条件性 | 把共享逻辑放在其依赖和领域含义所属的层；避免重复策略和过大的通用工具类。 | `docs/后端/30-规范/01-后端开发规范.md` | 通用设计信号，但抽取边界取决于项目架构。 |
 | 通用 | 在 API 和组件边界保持显式 TypeScript 类型；不要用 `any` 绕过类型错误。 | `docs/前端/01-前端管理后台.md` | 可移植的质量指导；实际编译器/linter 约束因项目而异。 |
 | 标准 | Vue 3 + TypeScript + Vite + Pinia + Vue Router + Element Plus + SCSS/BEM + vue-i18n + pnpm；SFC 顺序 `script`→`template`→`style`；组件 PascalCase、其它文件 kebab-case。 | `docs/前端/01-前端管理后台.md`; `docs/前端/02-前端命名规范.md`; `docs/前端/05-前端请求与安全通信.md` | 采纳为标准前端栈与风格；项目可显式覆盖。 |
+| 标准 | 前端目录：Page Module（`views/<Page>/index.vue` + 就近 `components/`）；布局 `src/layouts/`；共享组件 `src/components/`；第三方配置与 HTTP 客户端 `src/plugins/`。 | 评审新增 | 采纳为前端目录标准。 |
 | 条件性 | 显式建模组件 props 和事件，保持组件职责单一，跨视图复用的行为放入 composable。 | `docs/前端/01-前端管理后台.md` | 对 Vue 3 友好的建议；语法细节取决于 Vue 次版本与 lint 规则。 |
 | 标准 | 业务 API 调用统一走共享请求层；把普通 `fetch` 客户端与原生 `XHR` 上传客户端分开；认证、重试、缓存、取消和二进制传输按契约敏感行为处理。 | `docs/前端/05-前端请求与安全通信.md` | 采纳双客户端拆分与共享层规则；Spectra 的加密/CSRF 管线仍为项目专有。 |
 | 标准 | Schema 变更显式且可评审；使用 Flyway 版本化迁移、约束和索引维护数据完整性。 | `docs/后端/30-规范/03-数据库命名规范.md`; `docs/开发指南/01-常见命令.md` | 采纳 Flyway 为标准；命名方案仍因项目而异。 |
@@ -37,7 +38,6 @@
 | 标准 | Flyway 时间戳式命名 `V{yyyyMMddHHmmss}__{描述}.sql`，已执行迁移不改。 | 评审新增 | 采纳为迁移命名标准。 |
 | 标准 | 密码存储 `PasswordEncoder`（BCrypt/Delegating）与刷新令牌轮换。 | 评审新增 | 采纳为安全标准。 |
 | 标准 | 可观测性：traceId/MDC 透传、Actuator 健康/就绪探针。 | 评审新增 | 采纳为运维标准。 |
-| 标准 | API 文档 springdoc-openapi（展示 `snake_case` schema 与 Bearer 方案）。 | 评审新增 | 采纳为文档标准。 |
 | 标准 | 前端 dayjs、前后端类型契约同步、严格 BEM、开发期 mock 不进生产。 | 评审新增 | 采纳为前端标准；代码生成、MSW、Sentry、WebSocket 按需采用。 |
 
 ## 规则 → 唯一所属文件（防偏移索引）

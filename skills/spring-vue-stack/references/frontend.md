@@ -2,7 +2,7 @@
 
 用于 Vue 3 页面、组件、Composable、路由、状态及服务端 API 集成。
 
-标准栈：Vue 3 + TypeScript · Vite · Pinia · Vue Router · Element Plus（完整引入）· SCSS + 严格 BEM · vue-i18n · pnpm。普通请求用 `fetch` 封装，文件上传用原生 `XHR` 封装。代码质量与格式见 [frontend-lint.md](frontend-lint.md)。管理后台常见模式（CRUD 列表页、权限指令、表单、校验 i18n、可访问性）见 [frontend-patterns.md](frontend-patterns.md)。目标仓库显式使用其它方案时以仓库为准。
+标准栈：Vue 3 + TypeScript · Vite · Pinia · Vue Router · Element Plus（完整引入）· SCSS + 严格 BEM · vue-i18n · pnpm。普通请求用 `fetch` 封装、文件上传用原生 `XHR` 封装（默认位于 `src/plugins/request`）。代码质量与格式见 [frontend-lint.md](frontend-lint.md)。管理后台常见模式（CRUD 列表页、权限指令、表单、校验 i18n、可访问性）见 [frontend-patterns.md](frontend-patterns.md)。目标仓库显式使用其它方案时以仓库为准。
 
 ## 开工探测清单
 
@@ -52,7 +52,33 @@
 - Pinia store 以 `use` 开头、`Store` 结尾（`useUserStore.ts`）。
 - 组合式函数、类型、常量、事件的命名表达业务含义；布尔量用 `is`/`has`/`can` 前缀。
 - 常量使用 UPPER_SNAKE_CASE；不要散落魔法字符串，封闭值域用 `as const` 或联合类型收敛。
-- 目录按职责划分（如 `api`、`stores`、`composables`、`router`、`views`、`components`、`types`、`utils`），沿用仓库既有结构，不为局部功能另起平行体系。
+- 目录按职责划分（`api`、`components`、`composables`、`layouts`、`plugins`、`views`、`types`、`utils` 等），沿用仓库既有结构，不为局部功能另起平行体系。
+
+## 页面组织（Page Module 与 Colocation）
+
+页面采用**页面模块化（Page Module）**组织，页面私有组件遵循 **Colocation（就近存放）**：
+
+```text
+src/
+├── components/              # 跨页面共享组件
+└── views/
+    └── User/
+        ├── index.vue        # 页面入口组件（entry component）
+        └── components/      # User 页面私有组件
+            ├── UserForm.vue
+            └── UserTable.vue
+```
+
+- 每个页面一个目录 `src/views/<Page>/`（目录 PascalCase），入口组件固定为 `index.vue`，路由指向 `@/views/<Page>/index.vue`。
+- 只被当前页面使用的组件放该页面目录下的 `components/`，不要放到全局 `components/`。
+- 被多个页面/模块复用时才提升到 `src/components/`，提升后同步更新所有引用。
+- 页面私有的 API 类型、辅助函数等同样就近放置；跨页共享才上提。
+
+## 第三方框架配置（src/plugins）
+
+- 第三方框架的初始化与配置集中放在 `src/plugins/`：`plugins/i18n`、`plugins/router`、`plugins/stores`、`plugins/element-plus.ts`（含 `useElementPlusLocale`，使 Element Plus 组件语言跟随 vue-i18n）、`plugins/request`（HTTP 客户端）。
+- `main.ts` 只负责创建应用并按插件注册，具体配置在 `plugins/` 内维护。
+- 新增第三方框架时在 `plugins/` 增加模块（必要时导出 `setupXxx(app)`），不要堆到 `main.ts`。
 
 ## SFC 与组件
 
@@ -94,11 +120,11 @@
 
 ## 请求层
 
-业务请求统一经过标准的两套封装（普通请求 `fetch` 封装 + 上传原生 `XHR` 封装）；项目显式使用其它请求层时以项目为准。不要在业务组件中直接调用 `fetch`/`XMLHttpRequest`。
+业务请求统一经过标准的两套封装（普通请求 `fetch` + 上传原生 `XHR`）；默认实现位于 `src/plugins/request`，统一出口为 `request`（`request.get/post/put/patch/delete` 走 fetch，`request.upload` 走 XHR），并具名导出 `upload`、`ApiError` 与相关类型。`shared.ts` 承载公共逻辑：地址与查询参数构建、认证头、统一壳校验、错误归一化，fetch/xhr 共用。项目显式使用其它请求层时以项目为准。不要在业务组件中直接调用 `fetch`/`XMLHttpRequest`。
 
 ### 普通请求（`fetch` 封装）
 
-- 统一封装基于 `fetch`：`baseURL` 取自 `VITE_` 环境变量，统一拼接路径、超时（`AbortController`）、公共请求头。
+- 统一封装基于 `fetch`：`baseURL` 取自 `VITE_API_BASE_URL`（未配置时同源），统一拼接路径、超时（`AbortController`）、公共请求头。
 - 注入认证头 `Authorization: Bearer <token>`（见"认证与安全"）。
 - 响应处理：`status === 204` 直接返回 `null`；否则解析统一壳 `{code,message,data}`；`!response.ok` 抛出统一的 `ApiError{code,message,data}`；成功返回 `data`。
 - 区分网络失败、业务失败、取消（`AbortError`）和过期响应；快速切换筛选/路由造成的并发请求要取消或去重，避免竞态。
@@ -107,10 +133,21 @@
 
 ### 文件上传（原生 `XHR` 封装）
 
-- 上传使用独立的原生 `XMLHttpRequest` 封装，以便获取 `upload.onprogress` 进度；不要用普通请求封装上传。
-- 使用 `FormData` 组装文件与附加字段；正确设置认证头，不要手写 `Content-Type`（由浏览器带 boundary）。
+- 上传用 `request.upload(path, file, options)`（原生 `XHR`，可获取 `upload.onprogress` 进度）；不要用普通请求封装上传。
+- `file` 支持 `File`/`Blob`（自动装进 `FormData`，字段名 `fileField` 默认 `file`）或已组装好的 `FormData`；`options` 支持 `fields`（附加字段）、`onProgress`、`timeout`、`signal`（取消）。不要手写 `Content-Type`（由浏览器带 boundary），认证头与地址由 `shared.ts` 统一处理。
 - 处理成功、失败、取消与超时；大文件按项目既有分片/断点策略，不要自行引入不兼容的上传方案。
 - 下载/导出同样使用项目已有的文件传输封装，正确以 `blob` 处理响应并按需从响应头解析文件名。
+
+## 登录页与整体布局
+
+- 登录页独立于布局（不放侧边/顶栏），导出后写入 token 并跳回来源：`redirect` 来自 `?redirect=`，缺省回首页。
+- 整体布局放 `src/layouts/`（如 `layouts/Default/`），用 **flex** 保证窗口缩放不错位：纵向容器固定 `height: 100vh`，顶栏与侧栏 `flex: 0 0 auto`，内容区 `flex: 1; min-width: 0; overflow: auto`；默认无页脚。
+- 顶栏：左侧品牌（图标+名称），中间横向模块导航，最右用户头像/下拉；布局用 flex，导航区 `flex: 1; min-width: 0; overflow: hidden`，避免挤压或换行错位。
+- 菜单模型集中在布局目录（如 `layouts/Default/menu.ts`）：顶层为模块、`children` 为模块页面；顶栏渲染顶层、侧栏渲染当前模块的 `children`，`path` 与路由保持一致。菜单项可带 `icon`（`@element-plus/icons-vue`）。
+- 内容区顶部放面包屑（`layouts/Default/components/AppBreadcrumb.vue`）：由菜单模型生成「模块 / 当前页」，模块项可点击跳到该模块第一个页面，当前页项不可点。
+- 内容区高度用 flex 管理：main 为纵向 flex（`gap` + `overflow: hidden`），面包屑 `flex: 0 0 auto`，页面容器 `flex: 1; min-height: 0`（仅超长时滚动），避免加面包屑后出现整体滚动条。
+- 鉴权：路由守卫集中判断登录态（有 token 放行，未登录跳登录页并携带 `redirect`，已登录访问登录页跳首页）；token 通过 `plugins/request/token` 读写，`plugins/stores` 的认证 store 收口登录/退出。
+- 脚手架内置演示菜单（工作台/示例/系统，各 2 个子页）、`components/PagePlaceholder.vue` 占位组件与表格、表单示例页，便于新项目快速查看布局并替换为业务页面。
 
 ## 前后端类型契约同步
 

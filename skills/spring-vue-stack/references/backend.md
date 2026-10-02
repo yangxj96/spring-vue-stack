@@ -155,7 +155,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
 - 对 API 路径、HTTP 方法、字段、含义、错误码、状态码或权限要求的变化，检查前端调用方、其他客户端和接口文档。
 - 复用项目现有异常类型、全局异常处理和错误响应。对预期业务失败使用有语义的项目异常，不使用裸通用异常表达所有失败；保留内部诊断原因，但不向调用方泄露堆栈、SQL、凭据或内部实现。
 - 对受控的封闭值域使用枚举或项目已有的类型化表示；第三方可能扩展的开放值在适配边界处理，不要错误地拒绝未知值。
-- API 文档使用项目既有的 springdoc/OpenAPI 生成：为端点标注用途与错误码，展示线上 `snake_case` schema，Bearer 安全方案可一键授权，内部端点不出现在公开文档中。
 - 统一异常处理使用 `@RestControllerAdvice`（或项目等价机制）：把业务异常映射到标准 HTTP 状态与统一响应壳；**必须包含一个兜底处理器**（如 `@ExceptionHandler(Exception.class)`）捕获未预期异常，对内记录完整日志（含 traceId），对外只返回 `500` 与安全、稳定的提示，绝不泄露堆栈、SQL、凭据或内部实现。
 
 ## 序列化与 JSON 契约

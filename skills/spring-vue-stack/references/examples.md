@@ -352,7 +352,7 @@ export interface OrderQueryParams {
 `src/api/order.ts`
 
 ```ts
-import { request } from "@/plugin/request";
+import { request } from "@/plugins/request";
 import type { PageResult } from "@/types/api/common";
 import type { OrderCreateFrom, OrderQueryParams, OrderVO } from "@/types/api/order";
 
@@ -409,7 +409,7 @@ export function useOrderList() {
 }
 ```
 
-`src/views/order/OrderListPage.vue`
+`src/views/Order/index.vue`（Page Module 入口；页面私有组件放 `src/views/Order/components/`）
 
 ```vue
 <script setup lang="ts">

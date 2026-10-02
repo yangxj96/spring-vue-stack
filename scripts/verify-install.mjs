@@ -78,10 +78,9 @@ try {
 
     step("scaffold 叠加");
     const overlay = join(appDir, "overlay");
-    r = runNode([bin, "scaffold", "--backend", "--frontend", "--agents", "--target", overlay], { cwd: temp });
+    r = runNode([bin, "scaffold", "--backend", "--agents", "--target", overlay], { cwd: temp });
     assert.equal(r.status, 0, r.stderr);
     assert.ok(existsSync(join(overlay, "R.java")), "缺少后端资产 R.java");
-    assert.ok(existsSync(join(overlay, "request.ts")), "缺少前端资产 request.ts");
     assert.ok(existsSync(join(overlay, "AGENTS.md")), "缺少 AGENTS.md");
 
     step("validate（包内）");

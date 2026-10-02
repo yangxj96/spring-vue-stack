@@ -1,4 +1,7 @@
 :root {
+    /* 侧边栏宽度：布局左侧栏与顶栏品牌区共用，保证顶栏导航起始位置与侧栏右边界对齐。 */
+    --app-sidebar-width: 200px;
+
     color-scheme: light;
 }
 

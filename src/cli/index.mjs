@@ -42,7 +42,7 @@ init:
   --no-skill              不安装 opencode 技能
 
 scaffold:
-  --backend [--package <pkg>]  --frontend  --agents  --migration --name <描述>  --target <dir>
+  --backend [--package <pkg>]  --agents  --migration --name <描述>  --target <dir>
   （--backend 带 --package 时按包名落位，否则平铺复制）
 
 validate:

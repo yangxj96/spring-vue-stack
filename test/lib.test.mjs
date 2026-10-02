@@ -10,7 +10,6 @@ import {
     DEFAULT_BOOT_VERSION
 } from "../skills/spring-vue-stack/scripts/lib/placeholders.mjs";
 import { overlayBackendAssets } from "../skills/spring-vue-stack/scripts/lib/backend.mjs";
-import { overlayFrontendAssets } from "../skills/spring-vue-stack/scripts/lib/frontend.mjs";
 import { resolveSkillDest, installSkill } from "../skills/spring-vue-stack/scripts/lib/skill.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -43,19 +42,8 @@ test("overlayBackendAssets places java by package declaration", () => {
     try {
         overlayBackendAssets({ target: dir, packageName: "com.acme.demo", log: noop });
         assert.ok(existsSync(join(dir, "src", "main", "java", "com", "acme", "demo", "common", "web", "R.java")));
-        assert.ok(existsSync(join(dir, "src", "main", "resources", "mapper", "order", "Mapper.xml")));
+        assert.ok(existsSync(join(dir, "src", "main", "resources", "mapper", "order", "OrderMapper.xml")));
         assert.ok(!existsSync(join(dir, "migration-template.sql")));
-    } finally {
-        rmSync(dir, { recursive: true, force: true });
-    }
-});
-
-test("overlayFrontendAssets copies templates flat", () => {
-    const dir = mkdtempSync(join(tmpdir(), "svs-frontend-"));
-    try {
-        overlayFrontendAssets({ target: dir, log: noop });
-        assert.ok(existsSync(join(dir, "request.ts")));
-        assert.ok(existsSync(join(dir, "eslint.config.ts")));
     } finally {
         rmSync(dir, { recursive: true, force: true });
     }

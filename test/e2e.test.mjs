@@ -97,7 +97,7 @@ test("skill rejects unknown client", () => {
 });
 
 // C1：init 仅前端（离线，预置 package.json 跳过 create-vite）
-test("init frontend-only replaces package name and overlays assets", () => {
+test("init frontend-only replaces package name and copies template", () => {
     const dir = tmp("init-fe");
     try {
         mkdirSync(join(dir, "fe"), { recursive: true });
@@ -109,8 +109,30 @@ test("init frontend-only replaces package name and overlays assets", () => {
         assert.equal(r.status, 0, r.stderr);
         assert.equal(JSON.parse(readFileSync(join(dir, "fe", "package.json"), "utf8")).name, "acme-ui");
         assert.ok(existsSync(join(dir, "fe", "vite.config.ts")));
-        assert.ok(existsSync(join(dir, "fe", "src", "api", "request.ts")));
         assert.ok(existsSync(join(dir, "fe", "eslint.config.ts")));
+        // 页面按 Page Module 组织，第三方配置与 HTTP 客户端集中在 src/plugins
+        assert.ok(existsSync(join(dir, "fe", "src", "plugins", "i18n", "index.ts")));
+        assert.ok(existsSync(join(dir, "fe", "src", "plugins", "router", "index.ts")));
+        assert.ok(existsSync(join(dir, "fe", "src", "plugins", "stores", "app.ts")));
+        assert.ok(existsSync(join(dir, "fe", "src", "plugins", "stores", "auth.ts")));
+        assert.ok(existsSync(join(dir, "fe", "src", "plugins", "element-plus.ts")));
+        assert.ok(existsSync(join(dir, "fe", "src", "plugins", "request", "index.ts")));
+        assert.ok(existsSync(join(dir, "fe", "src", "plugins", "request", "shared.ts")));
+        assert.ok(existsSync(join(dir, "fe", "src", "plugins", "request", "fetch.ts")));
+        assert.ok(existsSync(join(dir, "fe", "src", "plugins", "request", "xhr.ts")));
+        assert.ok(existsSync(join(dir, "fe", "src", "plugins", "request", "token.ts")));
+        assert.ok(!existsSync(join(dir, "fe", "src", "plugins", "request", "upload.ts")));
+        assert.ok(existsSync(join(dir, "fe", "src", "layouts", "Default", "index.vue")));
+        assert.ok(existsSync(join(dir, "fe", "src", "layouts", "Default", "components", "AppBreadcrumb.vue")));
+        assert.ok(existsSync(join(dir, "fe", "src", "views", "Login", "index.vue")));
+        assert.ok(existsSync(join(dir, "fe", "src", "views", "Home", "index.vue")));
+        assert.ok(existsSync(join(dir, "fe", "src", "views", "Examples", "Table", "index.vue")));
+        assert.ok(existsSync(join(dir, "fe", "src", "views", "Examples", "Table", "components", "TableSearch.vue")));
+        assert.ok(existsSync(join(dir, "fe", "src", "views", "Examples", "Form", "index.vue")));
+        assert.ok(existsSync(join(dir, "fe", "src", "components", "README.md")));
+        assert.ok(!existsSync(join(dir, "fe", "src", "i18n")), "i18n 应移入 plugins");
+        assert.ok(!existsSync(join(dir, "fe", "src", "router")), "router 应移入 plugins");
+        assert.ok(!existsSync(join(dir, "fe", "src", "stores")), "stores 应移入 plugins");
         assert.ok(existsSync(join(dir, "AGENTS.md")));
         assert.ok(existsSync(join(dir, ".mise.toml")));
         // 单侧生成：仓库文件不应出现未生成的后端名
@@ -146,19 +168,32 @@ test("init backend skips existing pom generation and preserves existing assets",
         writeFileSync(join(dir, "be", "pom.xml"), "<project><parent><version>4.1.0</version></parent></project>");
         mkdirSync(pkgPath, { recursive: true });
         writeFileSync(join(pkgPath, "R.java"), "SENTINEL");
+        // 模拟 Initializr 生成的 application.properties，init 后应被删除
+        const resourcesDir = join(dir, "be", "src", "main", "resources");
+        mkdirSync(resourcesDir, { recursive: true });
+        writeFileSync(join(resourcesDir, "application.properties"), "spring.application.name=demo");
 
         const r = cli([
             "init", "--target", dir, "--backend",
             "--backend-dir", "be", "--package", "com.acme.demo", "--no-skill"
         ]);
         assert.equal(r.status, 0, r.stderr);
-        // pom 被标准模板覆盖（含 MyBatis-Plus）
-        assert.match(readFileSync(join(dir, "be", "pom.xml"), "utf8"), /mybatis-plus/);
+        // pom 被标准模板覆盖：Boot 4 用 boot4 starter + Flyway starter，且不再含 springdoc
+        const pom = readFileSync(join(dir, "be", "pom.xml"), "utf8");
+        assert.match(pom, /mybatis-plus-spring-boot4-starter/);
+        assert.match(pom, /spring-boot-starter-flyway/);
+        assert.ok(!pom.includes("springdoc"), "pom 不应含 springdoc");
+        // application.properties 与 application.yml 重复，应只保留 yml
+        assert.ok(!existsSync(join(resourcesDir, "application.properties")), "application.properties 应被删除");
+        assert.ok(existsSync(join(resourcesDir, "application.yml")));
+        // 初始订单迁移应生成
+        const migrations = readdirSync(join(resourcesDir, "db", "migration"));
+        assert.ok(migrations.some(f => /^V\d{14}__create_biz_order\.sql$/.test(f)), `未生成初始迁移: ${migrations.join(",")}`);
         // 已存在资产保持原样
         assert.equal(readFileSync(join(pkgPath, "R.java"), "utf8"), "SENTINEL");
         // 新资产按包名落位
         assert.ok(existsSync(join(dir, "be", "src", "main", "java", "com", "acme", "demo", "configuration", "MybatisPlusConfig.java")));
-        assert.ok(existsSync(join(dir, "be", "src", "main", "resources", "mapper", "order", "Mapper.xml")));
+        assert.ok(existsSync(join(dir, "be", "src", "main", "resources", "mapper", "order", "OrderMapper.xml")));
         // 单侧生成：仓库文件不应出现未生成的前端名
         const agents = readFileSync(join(dir, "AGENTS.md"), "utf8");
         assert.ok(!agents.includes("yangxj96-skills-ui"), "AGENTS 不应含未生成的前端名");
@@ -175,7 +210,7 @@ test("scaffold backend flat copy", () => {
         const r = cli(["scaffold", "--backend", "--target", dir]);
         assert.equal(r.status, 0, r.stderr);
         assert.ok(existsSync(join(dir, "R.java")));
-        assert.ok(existsSync(join(dir, "Mapper.xml")));
+        assert.ok(existsSync(join(dir, "OrderMapper.xml")));
         assert.ok(!existsSync(join(dir, "migration-template.sql")));
     } finally {
         rmSync(dir, { recursive: true, force: true });
@@ -189,7 +224,7 @@ test("scaffold backend with package places by declaration", () => {
         const r = cli(["scaffold", "--backend", "--package", "com.acme.demo", "--target", dir]);
         assert.equal(r.status, 0, r.stderr);
         assert.ok(existsSync(join(dir, "src", "main", "java", "com", "acme", "demo", "common", "web", "R.java")));
-        assert.ok(existsSync(join(dir, "src", "main", "resources", "mapper", "order", "Mapper.xml")));
+        assert.ok(existsSync(join(dir, "src", "main", "resources", "mapper", "order", "OrderMapper.xml")));
     } finally {
         rmSync(dir, { recursive: true, force: true });
     }
@@ -203,23 +238,18 @@ test("skill scaffold.mjs supports --package", () => {
         const r = spawnSync(process.execPath, [script, "--backend", "--package", "com.acme.demo", "--target", dir], { encoding: "utf8" });
         assert.equal(r.status, 0, r.stderr);
         assert.ok(existsSync(join(dir, "src", "main", "java", "com", "acme", "demo", "common", "web", "R.java")));
-        assert.ok(existsSync(join(dir, "src", "main", "resources", "mapper", "order", "Mapper.xml")));
+        assert.ok(existsSync(join(dir, "src", "main", "resources", "mapper", "order", "OrderMapper.xml")));
     } finally {
         rmSync(dir, { recursive: true, force: true });
     }
 });
 
-// D3/D4/D5/D6：前端平铺、agents、migration、组合
-test("scaffold frontend/agents/migration and combined", () => {
+// D3/D4/D5/D6：agents、migration、组合
+test("scaffold agents/migration and combined", () => {
     const dir = tmp("scaffold-mix");
     try {
-        let r = cli(["scaffold", "--frontend", "--target", dir]);
-        assert.equal(r.status, 0, r.stderr);
-        assert.ok(existsSync(join(dir, "request.ts")));
-        assert.ok(existsSync(join(dir, "upload.ts")));
-
         const dir2 = join(dir, "agents");
-        r = cli(["scaffold", "--agents", "--target", dir2]);
+        let r = cli(["scaffold", "--agents", "--target", dir2]);
         assert.equal(r.status, 0, r.stderr);
         assert.ok(existsSync(join(dir2, "AGENTS.md")));
 
@@ -230,10 +260,9 @@ test("scaffold frontend/agents/migration and combined", () => {
         assert.ok(files.some(f => /^V\d{14}__create_x\.sql$/.test(f)), `未生成迁移: ${files.join(",")}`);
 
         const dir4 = join(dir, "combo");
-        r = cli(["scaffold", "--backend", "--frontend", "--agents", "--target", dir4]);
+        r = cli(["scaffold", "--backend", "--agents", "--target", dir4]);
         assert.equal(r.status, 0, r.stderr);
         assert.ok(existsSync(join(dir4, "R.java")));
-        assert.ok(existsSync(join(dir4, "request.ts")));
         assert.ok(existsSync(join(dir4, "AGENTS.md")));
     } finally {
         rmSync(dir, { recursive: true, force: true });

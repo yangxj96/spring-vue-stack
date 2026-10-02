@@ -5,7 +5,7 @@ import { join, resolve } from "node:path";
 import { skillRoot, assetsRoot, skillScriptsDir } from "./paths.mjs";
 import { writeNew, timestampUtc } from "../../skills/spring-vue-stack/scripts/lib/fs-utils.mjs";
 import { initBackend, overlayBackendAssets } from "../../skills/spring-vue-stack/scripts/lib/backend.mjs";
-import { initFrontend, overlayFrontendAssets } from "../../skills/spring-vue-stack/scripts/lib/frontend.mjs";
+import { initFrontend } from "../../skills/spring-vue-stack/scripts/lib/frontend.mjs";
 import { initRepoFiles } from "../../skills/spring-vue-stack/scripts/lib/repo.mjs";
 import { installSkill } from "../../skills/spring-vue-stack/scripts/lib/skill.mjs";
 
@@ -89,10 +89,6 @@ export function runScaffold({ options, flags }) {
         overlayBackendAssets({ target, packageName: options.package ? String(options.package) : undefined });
         used++;
     }
-    if (flags.has("frontend")) {
-        overlayFrontendAssets({ target });
-        used++;
-    }
     if (flags.has("agents")) {
         writeNew(join(target, "AGENTS.md"), readFileSync(join(assetsRoot, "AGENTS.template.md")));
         used++;
@@ -105,7 +101,7 @@ export function runScaffold({ options, flags }) {
     }
 
     if (used === 0) {
-        throw new Error("scaffold 需要 --backend / --frontend / --agents / --migration 至少一个");
+        throw new Error("scaffold 需要 --backend / --agents / --migration 至少一个");
     }
     console.log("\n完成。模板为占位，请按目标项目改包名/表名/字段并复核契约。");
 }

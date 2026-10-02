@@ -1,21 +1,16 @@
-// 前端工程：调用 create-vite 生成 + 叠加标准配置与前端资产；或仅叠加资产到已有工程。
-import { readFileSync, readdirSync, existsSync, rmSync } from "node:fs";
+// 前端工程：调用 create-vite 生成 + 落标准项目模板（模板自包含，无需再叠加资产）。
+import { readdirSync, existsSync, rmSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
-import { writeNew, copyTree, copyDir } from "./fs-utils.mjs";
+import { copyTree } from "./fs-utils.mjs";
 import { buildPlaceholderMap, applyPlaceholders } from "./placeholders.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const skillRoot = resolve(here, "..", "..");
 const assets = join(skillRoot, "assets");
 
-// 仅把 assets/frontend 复制到目标目录（scaffold 行为，目标通常是前端 src）。
-export function overlayFrontendAssets({ target, log = console.log }) {
-    copyDir(join(assets, "frontend"), target, new Set(), log);
-}
-
-// 生成整套前端工程。
+// 生成整套前端工程：create-vite（如需）后，用标准项目模板整体覆盖。
 export function initFrontend({
     target,
     frontendName,
@@ -55,7 +50,7 @@ export function initFrontend({
         bootVersion: undefined
     });
 
-    // 清空生成的 src 以免冲突，再落标准项目模板。
+    // 清空生成的 src 以免冲突，再落标准项目模板（含 request/stores/api 等全部前端文件）。
     const srcDir = join(dir, "src");
     if (existsSync(srcDir)) rmSync(srcDir, { recursive: true, force: true });
     copyTree(join(assets, "project", "frontend"), dir, {
@@ -64,20 +59,5 @@ export function initFrontend({
         log
     });
 
-    // 叠加前端资产到约定目录。
-    const fe = join(assets, "frontend");
-    const put = (file, destRel) => writeNew(join(dir, destRel), readFileSync(join(fe, file), "utf8"), log);
-    put("api-error.ts", "src/api/api-error.ts");
-    put("request.ts", "src/api/request.ts");
-    put("page-result.ts", "src/api/page-result.ts");
-    put("upload.ts", "src/api/upload.ts");
-    put("date.ts", "src/utils/date.ts");
-    put("use-list.ts", "src/composables/use-list.ts");
-    put("store.ts", "src/stores/app.ts");
-    put("route-meta.ts", "src/types/route-meta.ts");
-    put("eslint.config.ts", "eslint.config.ts");
-    put(".prettierrc.yml", ".prettierrc.yml");
-    put(".prettierignore", ".prettierignore");
-    put("stylelint.config.mjs", "stylelint.config.mjs");
     return dir;
 }

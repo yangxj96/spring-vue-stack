@@ -19,7 +19,6 @@
 | 缓存/状态 | Redis |
 | 安全 | Spring Security + Redis 存 UUID token；新项目可选 Sa-Token（二选一） |
 | 对象工具 | Lombok、MapStruct（标准启用，项目可显式关闭） |
-| API 文档 | springdoc-openapi（展示 snake_case schema 与 Bearer 方案） |
 
 ### 前端
 
@@ -29,11 +28,12 @@
 | 构建 | Vite |
 | 状态 | Pinia |
 | 路由 | Vue Router |
-| UI | Element Plus（完整引入 `app.use(ElementPlus)`） |
+| 目录组织 | Page Module（`views/<Page>/index.vue` + 就近 `components/`）；布局 `src/layouts/`；共享组件 `src/components/`；第三方配置与 HTTP 客户端 `src/plugins/` |
+| UI | Element Plus（完整引入，注册封装在 `src/plugins`） |
 | 样式 | SCSS + 严格 BEM |
 | 国际化 | vue-i18n |
 | 包管理 | pnpm |
-| 请求 | 普通请求用 `fetch` 封装；文件上传用原生 `XHR` 封装 |
+| 请求 | 统一出口 `request`：`fetch` 普通请求 + `XHR` 上传（`src/plugins/request`，共用 `shared.ts`） |
 | 代码质量 | ESLint + Prettier + Stylelint（详见 [frontend-lint.md](frontend-lint.md)） |
 | 测试 | Vitest + Vue Test Utils；E2E 用 Playwright |
 

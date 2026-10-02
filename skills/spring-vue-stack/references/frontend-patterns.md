@@ -6,6 +6,7 @@
 
 一个列表页通常由「搜索表单 + 表格 + 分页 + 新建/编辑弹窗 + 删除确认」组成：
 
+- 页面用纵向 flex 占满内容区：搜索区固定顶部、表格区 `flex: 1; min-height: 0` 内部滚动、分页固定底部；不要把整页撑高产生内容区滚动条。
 - 数据与分页状态放入 Composable（如 `useXxxList`），页面只负责渲染与交互。
 - 搜索/筛选变化时重置到第 1 页并重新加载；并发请求遵循取消/去重。
 - 表格 `:key` 用稳定唯一标识；大批量数据用虚拟滚动。
@@ -39,5 +40,7 @@
 
 ## 目录与命名
 
-- 页面放 `src/views/<域>/`，可复用组件放 `src/components/`，Composable 放 `src/composables/`，API 放 `src/api/`。
+- 页面按 Page Module 组织：`src/views/<Page>/index.vue`（目录 PascalCase）为入口组件，页面私有组件就近放 `src/views/<Page>/components/`（Colocation）；跨页面复用才提升到 `src/components/`。
+- Composable 放 `src/composables/`，API 放 `src/api/`，整体布局放 `src/layouts/`（如 `layouts/Default/`），第三方框架配置与 HTTP 客户端集中放 `src/plugins/`（i18n/router/stores/element-plus/request 等）。
+- 整体布局用 flex 自适应窗口：顶栏/侧栏固定、内容区滚动，默认无页脚；登录页独立于布局。
 - 文件命名：组件/页面 PascalCase，其余 kebab-case；类名遵循 BEM（见 [frontend.md](frontend.md)）。
