@@ -4,7 +4,7 @@ description: Use when changing Spring Boot 4.x backend code, Vue 3.x frontend, P
 license: MIT
 compatibility: 脚本需 Node.js 18+；适用于遵循 Agent Skills 规范、从本地目录发现技能的客户端。
 metadata:
-  version: "1.2.1"
+  version: "1.2.2"
 ---
 
 # Spring + Vue 技术栈开发指南
